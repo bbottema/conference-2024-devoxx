@@ -1,8 +1,6 @@
 package devoxx.rag._2_naive_rag;
 
-import com.datastax.astra.client.DataAPIClient;
 import com.datastax.astra.client.exception.TooManyDocumentsToCountException;
-import com.datastax.astra.langchain4j.store.embedding.AstraDbEmbeddingStore;
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
 import dev.langchain4j.data.document.parser.TextDocumentParser;
@@ -17,7 +15,6 @@ import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
-import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import devoxx.rag.AbstractDevoxxTest;
@@ -36,8 +33,10 @@ import static com.datastax.astra.internal.utils.AnsiUtils.cyan;
 import static com.datastax.astra.internal.utils.AnsiUtils.yellow;
 import static java.util.stream.Collectors.joining;
 
-    public class _20_naive_rag_astra extends AbstractDevoxxTest {
+public class _20_naive_rag_astra extends AbstractDevoxxTest {
 
+    // file from project root
+    static final File NAIVE_RAG_STORE = new File("src/test/resources/naive_rag_store.json");
     static final String COLLECTION_NAME = "naive_rag";
 
     @Test
@@ -51,22 +50,23 @@ import static java.util.stream.Collectors.joining;
         System.out.println(cyan("[OK] ") + " Document found");
 
         // Embedding Model (could be OpenAI or local implementation)
-        EmbeddingModel embeddingModel = getEmbeddingModel();  // Assume this method provides the embedding model
+        EmbeddingModel embeddingModel = getEmbeddingModel();
         System.out.println(cyan("[OK] ") + " Embedding Model '" + MODEL_EMBEDDING_TEXT + "' initialized");
 
         // In-Memory Embedding Store
-        ExtendedInMemoryEmbeddingStore<TextSegment> embeddingStore = new ExtendedInMemoryEmbeddingStore<>();
-        embeddingStore.removeAll();  // Clear the store before ingesting new data
+        ExtendedInMemoryEmbeddingStore<TextSegment> embeddingStore = ExtendedInMemoryEmbeddingStore.init(NAIVE_RAG_STORE);
+        embeddingStore.removeAll();
         System.out.println(cyan("[OK] ") + " In-Memory Embedding Store initialized");
 
         // Ingest into the In-Memory Embedding Store
         EmbeddingStoreIngestor.builder()
-                .documentSplitter(DocumentSplitters.recursive(300, 20))  // Split the document into chunks
-                .embeddingModel(embeddingModel)  // Use the embedding model for embedding
-                .embeddingStore(embeddingStore)  // Store embeddings in the in-memory store
+                .documentSplitter(DocumentSplitters.recursive(300, 20))
+                .embeddingModel(embeddingModel)
+                .embeddingStore(embeddingStore)
                 .build()
                 .ingest(myDoc);  // Perform the ingestion
 
+        embeddingStore.serializeToFile(NAIVE_RAG_STORE.toPath());
         System.out.println(cyan("[OK] ") + " Store initialized with " + embeddingStore.getEntries().size() + " elements");
     }
 
@@ -77,14 +77,13 @@ import static java.util.stream.Collectors.joining;
         String question = "Who is Johnny?";
 
         // RAG CONTEXT
-        ExtendedInMemoryEmbeddingStore<TextSegment> embeddingStore = new ExtendedInMemoryEmbeddingStore<>();
-        EmbeddingModel embeddingModel = getEmbeddingModel();
+        ExtendedInMemoryEmbeddingStore<TextSegment> embeddingStore = ExtendedInMemoryEmbeddingStore.init(NAIVE_RAG_STORE);
         List<EmbeddingMatch<TextSegment>> relevantEmbeddings = embeddingStore.search(EmbeddingSearchRequest.builder()
-                        .queryEmbedding(embeddingModel.embed(question).content())
+                        .queryEmbedding(getEmbeddingModel().embed(question).content())
                         .minScore(0.5)
                         .maxResults(2)
                         .build())
-                        .matches();
+                .matches();
 
         // Build Variables
         Map<String, Object> variables = new HashMap<>();
@@ -105,6 +104,7 @@ import static java.util.stream.Collectors.joining;
                         + "{{rag-context}}").apply(variables);
 
         // See an answer from the model
+        System.out.println("Answer:");
         System.out.println(getChatLanguageModel()
                 .generate(prompt.toUserMessage())
                 .content().text());
@@ -133,7 +133,7 @@ import static java.util.stream.Collectors.joining;
     @Test
     public void deleteCollection() {
         System.out.println(yellow("Delete Collection"));
-        ExtendedInMemoryEmbeddingStore<TextSegment> embeddingStore = new ExtendedInMemoryEmbeddingStore<>();
+        ExtendedInMemoryEmbeddingStore<TextSegment> embeddingStore = ExtendedInMemoryEmbeddingStore.init(NAIVE_RAG_STORE);
         embeddingStore.removeAll();
         System.out.println(cyan("[OK] ") + " Collection Deleted");
     }

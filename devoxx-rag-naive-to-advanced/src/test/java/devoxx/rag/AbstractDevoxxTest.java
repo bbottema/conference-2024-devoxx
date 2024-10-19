@@ -1,5 +1,9 @@
 package devoxx.rag;
 
+import com.datastax.astra.client.Collection;
+import com.datastax.astra.client.DataAPIClient;
+import com.datastax.astra.client.Database;
+import com.datastax.astra.client.model.Document;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.data.document.DocumentSplitter;
 import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
@@ -26,13 +30,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.datastax.astra.client.model.SimilarityMetric.COSINE;
 import static com.datastax.astra.internal.utils.AnsiUtils.cyan;
 import static dev.langchain4j.data.document.loader.FileSystemDocumentLoader.loadDocument;
 
@@ -88,19 +89,42 @@ public abstract class AbstractDevoxxTest {
             .build();
 
     // ------------------------------------------------------------
+    //                ASTRA / CASSANDRA STORE STUFF
+    // ------------------------------------------------------------
+
+    public static final String ASTRA_TOKEN        = System.getenv("ASTRA_TOKEN_DEVOXX");
+    public static final String ASTRA_API_ENDPOINT = "https://57fe123e-8f47-4165-babc-0df44136e3fb-us-east1.apps.astra.datastax.com";
+
+    public Database getAstraDatabase() {
+        // verbose
+        //return new DataAPIClient(ASTRA_TOKEN).getDatabase(ASTRA_API_ENDPOINT);
+        return new DataAPIClient(ASTRA_TOKEN)
+                //DataAPIOptions.builder().withObserver(new LoggingCommandObserver(AbstractDevoxxTest.class)).build())
+                .getDatabase(ASTRA_API_ENDPOINT);
+    }
+
+    public Collection<Document> createCollection(String name, int dimension) {
+        return getAstraDatabase().createCollection(name, dimension, COSINE);
+    }
+
+    public Collection<Document> getCollection(String name) {
+        return getAstraDatabase().getCollection(name);
+    }
+
+    // ------------------------------------------------------------
     //                JAVA IN-MEMORY STORE STUFF
     // ------------------------------------------------------------
 
-    public InMemoryDatabase getAstraDatabase() {
+    public InMemoryDatabase getInMemoryDatabase() {
         return new InMemoryDatabase();
     }
 
-    public InMemoryDatabase.Collection createCollection(String name, int dimension) {
-        return getAstraDatabase().createCollection(name, dimension);
+    public InMemoryDatabase.Collection createInmemoryCollection(String name, int dimension) {
+        return getInMemoryDatabase().createCollection(name, dimension);
     }
 
-    public InMemoryDatabase.Collection getCollection(String name) {
-        return getAstraDatabase().getCollection(name);
+    public InMemoryDatabase.Collection getInMemoryCollection(String name) {
+        return getInMemoryDatabase().getCollection(name);
     }
 
     // ------------------------------------------------------------
