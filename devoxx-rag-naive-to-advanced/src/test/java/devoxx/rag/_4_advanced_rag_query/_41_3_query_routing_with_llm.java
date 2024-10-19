@@ -33,7 +33,7 @@ public class _41_3_query_routing_with_llm extends AbstractDevoxxTest {
 
         Assistant assistant = AiServices.builder(Assistant.class)
                 .retrievalAugmentor(retrievalAugmentor)
-                .chatLanguageModel(getChatLanguageModel(MODEL_GEMINI_PRO))
+                .chatLanguageModel(getChatLanguageModel())
                 .build();
 
         System.out.println(assistant.answer("Give me the name of the horse"));

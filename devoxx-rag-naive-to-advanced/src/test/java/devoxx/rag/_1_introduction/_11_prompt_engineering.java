@@ -37,7 +37,7 @@ public class _11_prompt_engineering extends AbstractDevoxxTest {
 
         // Velocity / Mustache ...anyone ^_^ ? oldies but goodies
         Prompt prompt = promptTemplate.apply(variables);
-        Response<AiMessage> response = getChatLanguageModel(MODEL_GEMINI_PRO).generate(prompt.toUserMessage());
+        Response<AiMessage> response = getChatLanguageModel().generate(prompt.toUserMessage());
         prettyPrint(response);
     }
 
@@ -65,7 +65,7 @@ public class _11_prompt_engineering extends AbstractDevoxxTest {
 
         // Velocity / Mustache ...anyone ^_^ ? oldies but goodies
         Prompt userPrompt = userPromptTemplate.apply(variables);
-        Response<AiMessage> response = getChatLanguageModel(MODEL_GEMINI_PRO).generate(
+        Response<AiMessage> response = getChatLanguageModel().generate(
                 SystemMessage.from(systemPrompts),
                 userPrompt.toUserMessage());
         prettyPrint(response);

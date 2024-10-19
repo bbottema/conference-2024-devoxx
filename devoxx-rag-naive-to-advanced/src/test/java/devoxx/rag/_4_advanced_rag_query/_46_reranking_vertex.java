@@ -4,7 +4,6 @@ import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.splitter.DocumentByParagraphSplitter;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
-import dev.langchain4j.model.cohere.CohereScoringModel;
 import dev.langchain4j.model.scoring.ScoringModel;
 import dev.langchain4j.model.vertexai.VertexAiScoringModel;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
@@ -13,15 +12,12 @@ import dev.langchain4j.rag.content.aggregator.ContentAggregator;
 import dev.langchain4j.rag.content.aggregator.ReRankingContentAggregator;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.service.AiServices;
-import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import devoxx.rag.AbstractDevoxxTest;
-import devoxx.rag.Assistant;
 import org.junit.jupiter.api.Test;
 
 import static com.datastax.astra.internal.utils.AnsiUtils.cyan;
-import static devoxx.rag._3_advanced_rag_ingestion._37_hypothetical_questions_embedding.getEmbeddingStore;
 
 public class _46_reranking_vertex extends AbstractDevoxxTest {
 
@@ -66,7 +62,7 @@ public class _46_reranking_vertex extends AbstractDevoxxTest {
             By understanding dimensionality reduction and applying the appropriate techniques, you can simplify complex datasets, improve model performance, and gain valuable insights from your data.
             """;
 
-        var embeddingModel = getEmbeddingModel(MODEL_EMBEDDING_TEXT);
+        var embeddingModel = getEmbeddingModel();
 
         DocumentByParagraphSplitter splitter = new DocumentByParagraphSplitter(1000, 0);
 
@@ -115,7 +111,7 @@ public class _46_reranking_vertex extends AbstractDevoxxTest {
         }
 
         Assistant assistant =  AiServices.builder(Assistant.class)
-                .chatLanguageModel(getChatLanguageModel(MODEL_GEMINI_FLASH))
+                .chatLanguageModel(getChatLanguageModel())
                 .retrievalAugmentor(retrievalAugmentor)
                 .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
                 .build();

@@ -30,7 +30,7 @@ public class _32_vectors_similarity extends AbstractDevoxxTest {
                 + new DotProductSimilarity().compute(one, two));
 
         // Not multilingual
-        var embeddingModel2 = getEmbeddingModel(MODEL_EMBEDDING_MULTILINGUAL);
+        var embeddingModel2 = getEmbeddingModel();
         Embedding three = embeddingModel2.embed("baby dog").content();
         Embedding four = embeddingModel2.embed("jeune chien").content();
 

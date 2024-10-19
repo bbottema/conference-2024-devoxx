@@ -19,8 +19,10 @@ import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
+import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import devoxx.rag.AbstractDevoxxTest;
 import devoxx.rag.Assistant;
+import devoxx.rag.ExtendedInMemoryEmbeddingStore;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -45,26 +47,27 @@ import static java.util.stream.Collectors.joining;
         // Load the document
         URL fileURL = getClass().getResource("/text/johnny.txt");
         Path path = new File(fileURL.getFile()).toPath();
-        Document myDoc = FileSystemDocumentLoader.loadDocument(path,  new TextDocumentParser());
+        Document myDoc = FileSystemDocumentLoader.loadDocument(path, new TextDocumentParser());
         System.out.println(cyan("[OK] ") + " Document found");
 
-        // Embedding Model Vertex
-        EmbeddingModel embeddingModel = getEmbeddingModel(MODEL_EMBEDDING_TEXT);
-        System.out.println(cyan("[OK] ") + " Embedding Model '" + MODEL_EMBEDDING_TEXT +"' initialized");
+        // Embedding Model (could be OpenAI or local implementation)
+        EmbeddingModel embeddingModel = getEmbeddingModel();  // Assume this method provides the embedding model
+        System.out.println(cyan("[OK] ") + " Embedding Model '" + MODEL_EMBEDDING_TEXT + "' initialized");
 
-        // Embedding Store Astra
-        createCollection(COLLECTION_NAME, MODEL_EMBEDDING_DIMENSION);
-        EmbeddingStore<TextSegment> embeddingStore = new AstraDbEmbeddingStore(getCollection(COLLECTION_NAME));
-        embeddingStore.removeAll();
-        System.out.println(cyan("[OK] ") + " Embedding Store '"+ COLLECTION_NAME + "' initialized with dimension " + MODEL_EMBEDDING_DIMENSION);
+        // In-Memory Embedding Store
+        ExtendedInMemoryEmbeddingStore<TextSegment> embeddingStore = new ExtendedInMemoryEmbeddingStore<>();
+        embeddingStore.removeAll();  // Clear the store before ingesting new data
+        System.out.println(cyan("[OK] ") + " In-Memory Embedding Store initialized");
 
-        // Ingest
+        // Ingest into the In-Memory Embedding Store
         EmbeddingStoreIngestor.builder()
-                .documentSplitter(DocumentSplitters.recursive(300, 20))
-                .embeddingModel(embeddingModel)
-                .embeddingStore(embeddingStore).build()
-                .ingest(myDoc);
-        System.out.println(cyan("[OK] ") + " Store initialized with " + getCollection("naive_rag").countDocuments(100) + " elements");
+                .documentSplitter(DocumentSplitters.recursive(300, 20))  // Split the document into chunks
+                .embeddingModel(embeddingModel)  // Use the embedding model for embedding
+                .embeddingStore(embeddingStore)  // Store embeddings in the in-memory store
+                .build()
+                .ingest(myDoc);  // Perform the ingestion
+
+        System.out.println(cyan("[OK] ") + " Store initialized with " + embeddingStore.getEntries().size() + " elements");
     }
 
     @Test
@@ -74,8 +77,8 @@ import static java.util.stream.Collectors.joining;
         String question = "Who is Johnny?";
 
         // RAG CONTEXT
-        EmbeddingStore<TextSegment> embeddingStore = new AstraDbEmbeddingStore(getCollection(COLLECTION_NAME));
-        EmbeddingModel embeddingModel = getEmbeddingModel(MODEL_EMBEDDING_TEXT);
+        ExtendedInMemoryEmbeddingStore<TextSegment> embeddingStore = new ExtendedInMemoryEmbeddingStore<>();
+        EmbeddingModel embeddingModel = getEmbeddingModel();
         List<EmbeddingMatch<TextSegment>> relevantEmbeddings = embeddingStore.search(EmbeddingSearchRequest.builder()
                         .queryEmbedding(embeddingModel.embed(question).content())
                         .minScore(0.5)
@@ -102,17 +105,16 @@ import static java.util.stream.Collectors.joining;
                         + "{{rag-context}}").apply(variables);
 
         // See an answer from the model
-        System.out.println(getChatLanguageModel(MODEL_GEMINI_PRO)
+        System.out.println(getChatLanguageModel()
                 .generate(prompt.toUserMessage())
                 .content().text());
     }
 
     @Test
     public void should_rag_content_retriever() {
-
         ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
-                .embeddingStore(new AstraDbEmbeddingStore(getCollection(COLLECTION_NAME)))
-                .embeddingModel(getEmbeddingModel(MODEL_EMBEDDING_TEXT))
+                .embeddingStore(new InMemoryEmbeddingStore<>())
+                .embeddingModel(getEmbeddingModel())
                 .maxResults(2)
                 .minScore(0.5)
                 .build();
@@ -120,7 +122,7 @@ import static java.util.stream.Collectors.joining;
         // configuring it to use the components we've created above.
         Assistant ai = AiServices.builder(Assistant.class)
                 .contentRetriever(contentRetriever)
-                .chatLanguageModel(getChatLanguageModel(MODEL_GEMINI_PRO))
+                .chatLanguageModel(getChatLanguageModel())
                 .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
                 .build();
 
@@ -131,10 +133,8 @@ import static java.util.stream.Collectors.joining;
     @Test
     public void deleteCollection() {
         System.out.println(yellow("Delete Collection"));
-        new DataAPIClient(ASTRA_TOKEN)
-                .getDatabase(ASTRA_API_ENDPOINT)
-                .dropCollection(COLLECTION_NAME);
+        ExtendedInMemoryEmbeddingStore<TextSegment> embeddingStore = new ExtendedInMemoryEmbeddingStore<>();
+        embeddingStore.removeAll();
         System.out.println(cyan("[OK] ") + " Collection Deleted");
     }
-
 }

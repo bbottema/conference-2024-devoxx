@@ -23,7 +23,7 @@ public class _45_1_vectordb_crud extends AbstractDevoxxTest {
     @Test
     public void should_search_with_metadata() {
         String question = "We struggle all our life for nothing";
-        Embedding questionEmbedding = getEmbeddingModel(MODEL_EMBEDDING_TEXT).embed(question).content();
+        Embedding questionEmbedding = getEmbeddingModel().embed(question).content();
         AstraDbEmbeddingStore embeddingStore = new AstraDbEmbeddingStore(new DataAPIClient(ASTRA_TOKEN,
                 DataAPIOptions.builder().withObserver(new LoggingCommandObserver(AbstractDevoxxTest.class)).build())
                 .getDatabase(ASTRA_API_ENDPOINT).getCollection(COLLECTION_NAME));

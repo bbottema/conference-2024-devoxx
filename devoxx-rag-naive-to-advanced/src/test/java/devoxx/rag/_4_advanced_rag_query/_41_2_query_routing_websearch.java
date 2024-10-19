@@ -40,7 +40,7 @@ public class _41_2_query_routing_websearch extends AbstractDevoxxTest {
 
         Assistant assistant = AiServices.builder(Assistant.class)
             .retrievalAugmentor(retrievalAugmentor)
-            .chatLanguageModel(getChatLanguageModel(MODEL_GEMINI_PRO))
+            .chatLanguageModel(getChatLanguageModel())
             .build();
 
         System.out.println(assistant.answer("What is the current population of Paris?"));

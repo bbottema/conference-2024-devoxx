@@ -56,8 +56,8 @@ public class _47_hypothetical_document_embeddings extends AbstractDevoxxTest {
             By understanding dimensionality reduction and applying the appropriate techniques, you can simplify complex datasets, improve model performance, and gain valuable insights from your data.
             """;
 
-        var chatModel = getChatLanguageModel(MODEL_GEMINI_PRO);
-        var embeddingModel = getEmbeddingModel(MODEL_EMBEDDING_TEXT);
+        var chatModel = getChatLanguageModel();
+        var embeddingModel = getEmbeddingModel();
 
         DocumentByParagraphSplitter splitter = new DocumentByParagraphSplitter(1000, 0);
 

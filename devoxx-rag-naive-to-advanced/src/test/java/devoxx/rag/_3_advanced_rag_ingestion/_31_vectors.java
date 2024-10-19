@@ -23,7 +23,7 @@ public class _31_vectors extends AbstractDevoxxTest {
     @Test
     public void should_vector_normalized() {
         String chunk = "HELLO this is a vector";
-        Response<Embedding> res = getEmbeddingModel(MODEL_EMBEDDING_TEXT).embed(chunk);
+        Response<Embedding> res = getEmbeddingModel().embed(chunk);
         // The Model has a dimensionality o 768
         System.out.println(cyan("Vector: ") + res.content().vectorAsList());
         System.out.println(cyan("Dimensionality: ") + res.content().dimension());
@@ -41,8 +41,8 @@ public class _31_vectors extends AbstractDevoxxTest {
     public void should_compare_vectors() {
 
         String chunk = "HELLO this is a vector";
-        Response<Embedding> chunk1     = getEmbeddingModel(MODEL_EMBEDDING_TEXT).embed(chunk);
-        Response<Embedding> multimodal = getEmbeddingModel(MODEL_EMBEDDING_MULTILINGUAL).embed(chunk);
+        Response<Embedding> chunk1     = getEmbeddingModel().embed(chunk);
+        Response<Embedding> multimodal = getEmbeddingModel().embed(chunk);
 
         // Compute L2 Distance
         double sum = 0.0;

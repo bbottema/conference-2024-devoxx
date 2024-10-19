@@ -10,7 +10,6 @@ import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.output.Response;
 import dev.langchain4j.service.AiServices;
 import devoxx.rag.AbstractDevoxxTest;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -38,7 +37,7 @@ public class _48_sample_function_calling extends AbstractDevoxxTest {
         Calculator calculator = new Calculator();
 
         Assistant assistant = AiServices.builder(Assistant.class)
-            .chatLanguageModel(getChatLanguageModel(MODEL_GEMINI_PRO))
+            .chatLanguageModel(getChatLanguageModel())
             .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
             .tools(calculator)
             .build();
@@ -54,7 +53,7 @@ public class _48_sample_function_calling extends AbstractDevoxxTest {
 
         UserMessage userMessage = new UserMessage("How much is 754 + 926?");
 
-        Response<AiMessage> response = getChatLanguageModel(MODEL_GEMINI_PRO)
+        Response<AiMessage> response = getChatLanguageModel()
             .generate(singletonList(userMessage), toolSpecifications);
 
         AiMessage aiMessage = response.content();

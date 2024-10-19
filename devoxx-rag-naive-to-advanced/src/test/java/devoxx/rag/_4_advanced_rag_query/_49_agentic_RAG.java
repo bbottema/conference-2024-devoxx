@@ -17,7 +17,7 @@ public class _49_agentic_RAG extends AbstractDevoxxTest {
     public void agenticRAG() {
 
         AgenticAssistant assistant = AiServices.builder(AgenticAssistant.class)
-            .chatLanguageModel(getChatLanguageModel(MODEL_GEMINI_PRO))
+            .chatLanguageModel(getChatLanguageModel())
             .tools(new HistoryGeographyTool())
             .build();
 
@@ -60,10 +60,10 @@ public class _49_agentic_RAG extends AbstractDevoxxTest {
             System.out.println(magenta(">>> Invoking `searchInformation` tool with query: ") + query);
 
             TopicAssistant topicAssistant = AiServices.builder(TopicAssistant.class)
-                .chatLanguageModel(getChatLanguageModel(MODEL_GEMINI_PRO))
+                .chatLanguageModel(getChatLanguageModel())
                 .contentRetriever(EmbeddingStoreContentRetriever.builder()
                     .embeddingStore(getEmbeddingStore())
-                    .embeddingModel(getEmbeddingModel(MODEL_EMBEDDING_TEXT))
+                    .embeddingModel(getEmbeddingModel())
                     .build())
                 .build();
 

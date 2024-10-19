@@ -122,7 +122,7 @@ public class _37_hypothetical_questions_embedding extends AbstractDevoxxTest {
                     new Metadata().put(PARAGRAPH_KEY, questionParagraph.paragraph().text())))
                 .toList();
 
-            var embeddingModel = getEmbeddingModel("text-embedding-004");
+            var embeddingModel = getEmbeddingModel();
             var embeddingStore = getEmbeddingStore();
 
             List<Embedding> embeddings = embeddingModel.embedAll(embeddedSegments).content();
@@ -141,7 +141,7 @@ public class _37_hypothetical_questions_embedding extends AbstractDevoxxTest {
         System.out.println(magenta("-".repeat(100)));
         System.out.println(magenta("\nUSER QUESTION: ") + queryString);
 
-        var embeddingModel = getEmbeddingModel(MODEL_EMBEDDING_TEXT);
+        var embeddingModel = getEmbeddingModel();
         var embeddingStore = getEmbeddingStore();
 
         EmbeddingSearchResult<TextSegment> searchResults = embeddingStore.search(EmbeddingSearchRequest.builder()
@@ -163,7 +163,7 @@ public class _37_hypothetical_questions_embedding extends AbstractDevoxxTest {
         // =================================
         // Ask Gemini to generate a response
 
-        ChatLanguageModel chatModel = getChatLanguageModel(MODEL_GEMINI_PRO);
+        ChatLanguageModel chatModel = getChatLanguageModel();
 
         String concatenatedExtracts = searchResults.matches().stream()
             .map(match -> match.embedded().metadata().getString(PARAGRAPH_KEY))

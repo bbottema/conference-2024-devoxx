@@ -18,7 +18,7 @@ public class _40_content_retriever extends AbstractDevoxxTest  {
 
         Assistant assistant = AiServices.builder(Assistant.class)
                 .contentRetriever(retriever)
-                .chatLanguageModel(getChatLanguageModel(MODEL_GEMINI_PRO))
+                .chatLanguageModel(getChatLanguageModel())
                 .build();
 
         System.out.println(yellow("Chunks"));

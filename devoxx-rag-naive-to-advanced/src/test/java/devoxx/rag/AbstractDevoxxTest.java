@@ -1,9 +1,5 @@
 package devoxx.rag;
 
-import com.datastax.astra.client.Collection;
-import com.datastax.astra.client.DataAPIClient;
-import com.datastax.astra.client.Database;
-import com.datastax.astra.client.model.Document;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.data.document.DocumentSplitter;
 import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
@@ -14,13 +10,11 @@ import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.chat.StreamingChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
+import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import dev.langchain4j.model.output.Response;
 import dev.langchain4j.model.scoring.ScoringModel;
-import dev.langchain4j.model.vertexai.HarmCategory;
-import dev.langchain4j.model.vertexai.SafetyThreshold;
-import dev.langchain4j.model.vertexai.VertexAiEmbeddingModel;
-import dev.langchain4j.model.vertexai.VertexAiGeminiChatModel;
-import dev.langchain4j.model.vertexai.VertexAiGeminiStreamingChatModel;
 import dev.langchain4j.model.vertexai.VertexAiScoringModel;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
@@ -39,7 +33,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.datastax.astra.client.model.SimilarityMetric.COSINE;
 import static com.datastax.astra.internal.utils.AnsiUtils.cyan;
 import static dev.langchain4j.data.document.loader.FileSystemDocumentLoader.loadDocument;
 
@@ -53,8 +46,9 @@ public abstract class AbstractDevoxxTest {
     // ------------------------------------------------------------
 
     // Chat Models
-    protected final String MODEL_GEMINI_PRO       = "gemini-1.5-pro";
-    protected final String MODEL_GEMINI_FLASH     = "gemini-1.5-flash";
+    protected final String MODEL_GEMINI_PRO = "gemini-1.5-pro";
+    protected final String MODEL_GPT4O = "gpt-4o";
+    protected final String MODEL_GEMINI_FLASH = "gemini-1.5-flash";
 
     // Embedding Models
     // https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/text-embeddings-api?hl=en&authuser=2
@@ -63,63 +57,49 @@ public abstract class AbstractDevoxxTest {
     protected final int    MODEL_EMBEDDING_DIMENSION    = 768;
 
     /** Create a chat model. */
-    protected ChatLanguageModel getChatLanguageModel(final String modelName) {
-        return VertexAiGeminiChatModel.builder()
-                .project(System.getenv("GCP_PROJECT_ID"))
-                .location(System.getenv("GCP_LOCATION"))
-                .modelName(modelName)
+    protected ChatLanguageModel getChatLanguageModel() {
+        return OpenAiChatModel.builder()
+                .apiKey(System.getenv("OPENAI_API_KEY"))
+                .modelName("gpt-4o")
                 .maxRetries(5)
-                .safetySettings(Map.of(
-                    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, SafetyThreshold.BLOCK_NONE,
-                    HarmCategory.HARM_CATEGORY_HARASSMENT, SafetyThreshold.BLOCK_NONE,
-                    HarmCategory.HARM_CATEGORY_HATE_SPEECH, SafetyThreshold.BLOCK_NONE,
-                    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, SafetyThreshold.BLOCK_NONE
-                ))
                 .build();
     }
 
     /** Create a streaming chat model. */
-    protected StreamingChatLanguageModel getChatLanguageModelStreaming(final String modelName) {
-        return VertexAiGeminiStreamingChatModel.builder()
-                .project(System.getenv("GCP_PROJECT_ID"))
-                .location(System.getenv("GCP_LOCATION"))
-                .modelName(modelName)
+    protected StreamingChatLanguageModel getChatLanguageModelStreaming() {
+        return OpenAiStreamingChatModel.builder()
+                .apiKey(System.getenv("OPENAI_API_KEY"))
+                .modelName("gpt-4o") // e.g., "gpt-4"
                 .build();
     }
 
     /** Create an embedding model. */
-    protected EmbeddingModel getEmbeddingModel(final String modelName) {
-        return VertexAiEmbeddingModel.builder()
-                .project(System.getenv("GCP_PROJECT_ID"))
-                .endpoint(System.getenv("GCP_VERTEXAI_ENDPOINT"))
-                .location(System.getenv("GCP_LOCATION"))
-                .publisher("google")
-                .modelName(modelName)
-                .maxSegmentsPerBatch(100)
+    protected EmbeddingModel getEmbeddingModel() {
+        return OpenAiEmbeddingModel.builder()
+                .apiKey(System.getenv("OPENAI_API_KEY"))
+                .modelName("text-embedding-ada-002") // This is the common embedding model from OpenAI
                 .maxRetries(5)
                 .build();
     }
 
+    EmbeddingModel embeddingModel = OpenAiEmbeddingModel.builder()
+            .apiKey(System.getenv("OPENAI_API_KEY"))
+            .modelName("text-embedding-ada-002") // This is the common embedding model from OpenAI
+            .build();
+
     // ------------------------------------------------------------
-    //                ASTRA / CASSANDRA STORE STUFF
+    //                JAVA IN-MEMORY STORE STUFF
     // ------------------------------------------------------------
 
-    public static final String ASTRA_TOKEN        = System.getenv("ASTRA_TOKEN_DEVOXX");
-    public static final String ASTRA_API_ENDPOINT = "https://57fe123e-8f47-4165-babc-0df44136e3fb-us-east1.apps.astra.datastax.com";
-
-    public Database getAstraDatabase() {
-        // verbose
-        //return new DataAPIClient(ASTRA_TOKEN).getDatabase(ASTRA_API_ENDPOINT);
-        return new DataAPIClient(ASTRA_TOKEN)
-                //DataAPIOptions.builder().withObserver(new LoggingCommandObserver(AbstractDevoxxTest.class)).build())
-                .getDatabase(ASTRA_API_ENDPOINT);
+    public InMemoryDatabase getAstraDatabase() {
+        return new InMemoryDatabase();
     }
 
-    public Collection<Document> createCollection(String name, int dimension) {
-        return getAstraDatabase().createCollection(name, dimension, COSINE);
+    public InMemoryDatabase.Collection createCollection(String name, int dimension) {
+        return getAstraDatabase().createCollection(name, dimension);
     }
 
-    public Collection<Document> getCollection(String name) {
+    public InMemoryDatabase.Collection getCollection(String name) {
         return getAstraDatabase().getCollection(name);
     }
 
@@ -150,10 +130,10 @@ public abstract class AbstractDevoxxTest {
                 .recursive(300, 0);
         List<TextSegment> segments = splitter.split(document);
         EmbeddingStore<TextSegment> embeddingStore = new InMemoryEmbeddingStore<>();
-        embeddingStore.addAll(getEmbeddingModel(MODEL_EMBEDDING_TEXT).embedAll(segments).content(), segments);
+        embeddingStore.addAll(getEmbeddingModel().embedAll(segments).content(), segments);
         return EmbeddingStoreContentRetriever.builder()
                 .embeddingStore(embeddingStore)
-                .embeddingModel(getEmbeddingModel(MODEL_EMBEDDING_TEXT))
+                .embeddingModel(getEmbeddingModel())
                 .maxResults(2)
                 .minScore(0.6)
                 .build();
@@ -166,10 +146,10 @@ public abstract class AbstractDevoxxTest {
                                 .getResource(fileName))
                         .getFile()).toPath(), new TextDocumentParser()));
         EmbeddingStore<TextSegment> embeddingStore = new InMemoryEmbeddingStore<>();
-        embeddingStore.addAll(getEmbeddingModel(MODEL_EMBEDDING_TEXT).embedAll(segments).content(), segments);
+        embeddingStore.addAll(getEmbeddingModel().embedAll(segments).content(), segments);
         return EmbeddingStoreContentRetriever.builder()
                 .embeddingStore(embeddingStore)
-                .embeddingModel(getEmbeddingModel(MODEL_EMBEDDING_TEXT))
+                .embeddingModel(getEmbeddingModel())
                 .maxResults(2)
                 .minScore(0.6);
     }

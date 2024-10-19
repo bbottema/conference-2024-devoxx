@@ -24,7 +24,7 @@ public class _46_reranking_bm25 extends AbstractDevoxxTest {
     @Test
     public void should_search_in_vector_db() throws IOException {
         // I have to create a EmbeddingModel
-        EmbeddingModel embeddingModel = getEmbeddingModel(MODEL_EMBEDDING_TEXT);
+        EmbeddingModel embeddingModel = getEmbeddingModel();
         // Embed the question
         String question = "We struggle all our life for nothing";
         Embedding questionEmbedding = embeddingModel.embed(question).content();

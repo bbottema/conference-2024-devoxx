@@ -1,14 +1,7 @@
 package devoxx.rag._4_advanced_rag_query;
 
-import com.google.cloud.vertexai.api.Schema;
-import com.google.cloud.vertexai.api.Type;
 import dev.langchain4j.classification.EmbeddingModelTextClassifier;
-import dev.langchain4j.data.message.AiMessage;
-import dev.langchain4j.data.message.SystemMessage;
-import dev.langchain4j.data.message.UserMessage;
-import dev.langchain4j.model.output.Response;
 import dev.langchain4j.model.vertexai.VertexAiEmbeddingModel;
-import dev.langchain4j.model.vertexai.VertexAiGeminiChatModel;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
 import dev.langchain4j.rag.RetrievalAugmentor;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
@@ -36,7 +29,7 @@ public class _41_4_query_routing_with_classifier extends AbstractDevoxxTest {
 
         Assistant assistant = AiServices.builder(Assistant.class)
                 .retrievalAugmentor(retrievalAugmentor)
-                .chatLanguageModel(getChatLanguageModel(MODEL_GEMINI_PRO))
+                .chatLanguageModel(getChatLanguageModel())
                 .build();
 
         System.out.println(assistant.answer("Give me the name of the horse"));

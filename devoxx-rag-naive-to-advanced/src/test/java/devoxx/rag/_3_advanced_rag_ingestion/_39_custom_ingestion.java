@@ -25,7 +25,7 @@ class _39_custom_ingestion extends AbstractDevoxxTest {
     @Test
     void shouldIngestDocuments() throws IOException {
         createCollection(COLLECTION_NAME, MODEL_EMBEDDING_DIMENSION);
-        EmbeddingModel embeddingModel = getEmbeddingModel(MODEL_EMBEDDING_TEXT);
+        EmbeddingModel embeddingModel = getEmbeddingModel();
         getCollection(COLLECTION_NAME).deleteAll();
         List<Document> docs = loadQuotes("/json/philo_quotes.json")       // extraction
                 .stream()
@@ -37,7 +37,7 @@ class _39_custom_ingestion extends AbstractDevoxxTest {
     @Test
     void langchain4jEmbeddingStore() {
         // I have to create a EmbeddingModel
-        EmbeddingModel embeddingModel = getEmbeddingModel(MODEL_EMBEDDING_TEXT);
+        EmbeddingModel embeddingModel = getEmbeddingModel();
 
         // Embed the question
         Embedding questionEmbedding = embeddingModel.embed("We struggle all our life for nothing").content();

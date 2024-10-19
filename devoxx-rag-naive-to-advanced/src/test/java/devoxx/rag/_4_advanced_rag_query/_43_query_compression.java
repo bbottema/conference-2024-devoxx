@@ -1,15 +1,11 @@
 package devoxx.rag._4_advanced_rag_query;
 
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
-import dev.langchain4j.model.input.PromptTemplate;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
 import dev.langchain4j.rag.RetrievalAugmentor;
-import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
-import dev.langchain4j.rag.content.retriever.WebSearchContentRetriever;
 import dev.langchain4j.rag.query.transformer.CompressingQueryTransformer;
 import dev.langchain4j.service.AiServices;
-import dev.langchain4j.web.search.tavily.TavilyWebSearchEngine;
 import devoxx.rag.AbstractDevoxxTest;
 import devoxx.rag.Assistant;
 import org.junit.jupiter.api.Test;
@@ -31,17 +27,17 @@ public class _43_query_compression extends AbstractDevoxxTest {
 
         EmbeddingStoreContentRetriever retriever = EmbeddingStoreContentRetriever.builder()
             .embeddingStore(getEmbeddingStore())
-            .embeddingModel(getEmbeddingModel(MODEL_EMBEDDING_TEXT))
+            .embeddingModel(getEmbeddingModel())
             .build();
 
         RetrievalAugmentor retrievalAugmentor = DefaultRetrievalAugmentor.builder()
 //                .queryRouter(new DefaultQueryRouter(retriever, webSearchContentRetriever))
                 .contentRetriever(retriever)
-                .queryTransformer(new CompressingQueryTransformer(getChatLanguageModel(MODEL_GEMINI_FLASH)))
+                .queryTransformer(new CompressingQueryTransformer(getChatLanguageModel()))
                 .build();
 
         Assistant assistant = AiServices.builder(Assistant.class)
-                .chatLanguageModel(getChatLanguageModel(MODEL_GEMINI_FLASH))
+                .chatLanguageModel(getChatLanguageModel())
                 .retrievalAugmentor(retrievalAugmentor)
                 .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
                 .build();

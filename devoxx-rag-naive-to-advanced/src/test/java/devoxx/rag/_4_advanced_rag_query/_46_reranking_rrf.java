@@ -23,7 +23,7 @@ public class _46_reranking_rrf extends AbstractDevoxxTest  {
     @Test
     public void testRerankingRRF() {
         String question = "We struggle all our life for nothing";
-        Embedding questionEmbedding = getEmbeddingModel(MODEL_EMBEDDING_TEXT).embed(question).content();
+        Embedding questionEmbedding = getEmbeddingModel().embed(question).content();
         AstraDbEmbeddingStore embeddingStore = new AstraDbEmbeddingStore(getCollection(COLLECTION_NAME));
 
         List<EmbeddingMatch<TextSegment>> aristotleResults = embeddingStore.findRelevant(

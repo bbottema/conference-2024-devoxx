@@ -23,7 +23,7 @@ public class _39_semantic_chunking extends AbstractDevoxxTest {
     public void semanticChunking() {
         String text = loadDocumentText("text/berlin.txt").text();
 
-        var embeddingModel = getEmbeddingModel(MODEL_EMBEDDING_TEXT);
+        var embeddingModel = getEmbeddingModel();
 
         // split by sentences
         DocumentBySentenceSplitter splitter = new DocumentBySentenceSplitter(200, 20);

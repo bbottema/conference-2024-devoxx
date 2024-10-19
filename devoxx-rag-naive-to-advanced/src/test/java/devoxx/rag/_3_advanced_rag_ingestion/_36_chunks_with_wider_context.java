@@ -43,7 +43,7 @@ public class _36_chunks_with_wider_context extends AbstractDevoxxTest {
 
         List<ParentChild> parentChildren = slidingWindow(textSegments, 1, 2);
 
-        var embeddingModel = getEmbeddingModel(MODEL_EMBEDDING_TEXT);
+        var embeddingModel = getEmbeddingModel();
 
         InMemoryEmbeddingStore<TextSegment> embeddingStore =
             new InMemoryEmbeddingStore<>();
@@ -76,7 +76,7 @@ public class _36_chunks_with_wider_context extends AbstractDevoxxTest {
         // =================================
         // Ask Gemini to generate a response
 
-        ChatLanguageModel chatModel = getChatLanguageModel(MODEL_GEMINI_FLASH);
+        ChatLanguageModel chatModel = getChatLanguageModel();
 
         Response<AiMessage> response = chatModel.generate(PromptTemplate.from("""
             You must answer the following question:

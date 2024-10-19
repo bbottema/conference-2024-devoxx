@@ -3,9 +3,6 @@ package devoxx.rag._4_advanced_rag_query;
 import com.datastax.astra.client.exception.TooManyDocumentsToCountException;
 import com.datastax.astra.langchain4j.store.embedding.AstraDbEmbeddingStore;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
-import dev.langchain4j.rag.DefaultRetrievalAugmentor;
-import dev.langchain4j.rag.RetrievalAugmentor;
-import dev.langchain4j.rag.content.injector.DefaultContentInjector;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.service.AiServices;
@@ -17,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import static com.datastax.astra.client.model.Filters.eq;
 import static com.datastax.astra.client.model.Filters.lt;
 import static com.datastax.astra.internal.utils.AnsiUtils.yellow;
-import static java.util.Arrays.asList;
 
 
 public class _45_4_vectordb_metadata_filtering extends AbstractDevoxxTest {
@@ -41,7 +37,7 @@ public class _45_4_vectordb_metadata_filtering extends AbstractDevoxxTest {
     public void shouldRetrieveDocument() {
         ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
                 .embeddingStore(new AstraDbEmbeddingStore(getCollection(COLLECTION_NAME)))
-                .embeddingModel(getEmbeddingModel(MODEL_EMBEDDING_TEXT))
+                .embeddingModel(getEmbeddingModel())
                 .filter(new IsEqualTo("authors", "aristotle"))
                 .maxResults(2)
                 .minScore(0.5)
@@ -49,7 +45,7 @@ public class _45_4_vectordb_metadata_filtering extends AbstractDevoxxTest {
 
         Assistant ai = AiServices.builder(Assistant.class)
                 .contentRetriever(contentRetriever)
-                .chatLanguageModel(getChatLanguageModel(MODEL_GEMINI_PRO))
+                .chatLanguageModel(getChatLanguageModel())
                 .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
                 .build();
 

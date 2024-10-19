@@ -69,7 +69,7 @@ public class _50_evaluation_mrr extends AbstractDevoxxTest {
     }
 
     Embedding embed(String text) {
-        return getEmbeddingModel(MODEL_EMBEDDING_TEXT).embed(text).content();
+        return getEmbeddingModel().embed(text).content();
     }
 
 

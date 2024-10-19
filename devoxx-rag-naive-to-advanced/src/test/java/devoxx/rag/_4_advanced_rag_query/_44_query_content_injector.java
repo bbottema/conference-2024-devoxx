@@ -40,7 +40,7 @@ public class _44_query_content_injector extends AbstractDevoxxTest {
         // Retrieving the content from the embedding store
         ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
                 .embeddingStore(new AstraDbEmbeddingStore(getCollection(COLLECTION_NAME)))
-                .embeddingModel(getEmbeddingModel(MODEL_EMBEDDING_TEXT))
+                .embeddingModel(getEmbeddingModel())
                 .maxResults(2)
                 .minScore(0.5)
                 .build();
@@ -64,7 +64,7 @@ public class _44_query_content_injector extends AbstractDevoxxTest {
         // configuring it to use the components we've created above.
         Assistant ai = AiServices.builder(Assistant.class)
                 .retrievalAugmentor(retrievalAugmentor)
-                .chatLanguageModel(getChatLanguageModel(MODEL_GEMINI_PRO))
+                .chatLanguageModel(getChatLanguageModel())
                 .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
                 .build();
 

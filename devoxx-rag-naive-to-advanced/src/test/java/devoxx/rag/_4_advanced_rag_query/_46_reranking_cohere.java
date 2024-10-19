@@ -37,7 +37,7 @@ public class _46_reranking_cohere extends AbstractDevoxxTest {
                 .build();
 
         Assistant assistant =  AiServices.builder(Assistant.class)
-                .chatLanguageModel(getChatLanguageModel(MODEL_GEMINI_PRO))
+                .chatLanguageModel(getChatLanguageModel())
                 .retrievalAugmentor(retrievalAugmentor)
                 .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
                 .build();
