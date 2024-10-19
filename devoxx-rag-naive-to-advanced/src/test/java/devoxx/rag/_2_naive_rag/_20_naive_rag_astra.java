@@ -113,7 +113,7 @@ public class _20_naive_rag_astra extends AbstractDevoxxTest {
     @Test
     public void should_rag_content_retriever() {
         ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
-                .embeddingStore(new InMemoryEmbeddingStore<>())
+                .embeddingStore(ExtendedInMemoryEmbeddingStore.init(NAIVE_RAG_STORE))
                 .embeddingModel(getEmbeddingModel())
                 .maxResults(2)
                 .minScore(0.5)
@@ -135,6 +135,7 @@ public class _20_naive_rag_astra extends AbstractDevoxxTest {
         System.out.println(yellow("Delete Collection"));
         ExtendedInMemoryEmbeddingStore<TextSegment> embeddingStore = ExtendedInMemoryEmbeddingStore.init(NAIVE_RAG_STORE);
         embeddingStore.removeAll();
+        embeddingStore.serializeToFile(NAIVE_RAG_STORE.toPath());
         System.out.println(cyan("[OK] ") + " Collection Deleted");
     }
 }
