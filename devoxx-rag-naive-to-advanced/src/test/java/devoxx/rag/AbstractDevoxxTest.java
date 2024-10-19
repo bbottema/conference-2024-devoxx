@@ -47,14 +47,15 @@ public abstract class AbstractDevoxxTest {
     // ------------------------------------------------------------
 
     // Chat Models
-    protected final String MODEL_GEMINI_PRO = "gemini-1.5-pro";
-    protected final String MODEL_GPT4O = "gpt-4o";
     protected final String MODEL_GEMINI_FLASH = "gemini-1.5-flash";
 
     // Embedding Models
     // https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/text-embeddings-api?hl=en&authuser=2
     protected final String MODEL_EMBEDDING_MULTILINGUAL = "text-multilingual-embedding-002";
     protected final String MODEL_EMBEDDING_TEXT         = "text-embedding-004";
+    protected final String MODEL_OPENAI_ADA2            = "text-embedding-ada-002";
+    protected final String MODEL_OPENAI_TEXT3_SMALL     = "text-embedding-3-small";
+    protected final String MODEL_OPENAI_TEXT3_LARGE     = "text-embedding-3-large";
     protected final int    MODEL_EMBEDDING_DIMENSION    = 768;
 
     /** Create a chat model. */
@@ -76,17 +77,20 @@ public abstract class AbstractDevoxxTest {
 
     /** Create an embedding model. */
     protected EmbeddingModel getEmbeddingModel() {
+        return getEmbeddingModel(MODEL_OPENAI_ADA2);
+    }
+    protected OpenAiEmbeddingModel.OpenAiEmbeddingModelBuilder getEmbeddingModelBuilder() {
+        return getEmbeddingModelBuilder(MODEL_OPENAI_ADA2);
+    }
+    protected EmbeddingModel getEmbeddingModel(String modelName) {
+        return getEmbeddingModelBuilder(modelName).build();
+    }
+    protected OpenAiEmbeddingModel.OpenAiEmbeddingModelBuilder getEmbeddingModelBuilder(String modelName) {
         return OpenAiEmbeddingModel.builder()
                 .apiKey(System.getenv("OPENAI_API_KEY"))
-                .modelName("text-embedding-ada-002") // This is the common embedding model from OpenAI
-                .maxRetries(5)
-                .build();
+                .modelName(modelName) // This is the common embedding model from OpenAI
+                .maxRetries(5);
     }
-
-    EmbeddingModel embeddingModel = OpenAiEmbeddingModel.builder()
-            .apiKey(System.getenv("OPENAI_API_KEY"))
-            .modelName("text-embedding-ada-002") // This is the common embedding model from OpenAI
-            .build();
 
     // ------------------------------------------------------------
     //                ASTRA / CASSANDRA STORE STUFF

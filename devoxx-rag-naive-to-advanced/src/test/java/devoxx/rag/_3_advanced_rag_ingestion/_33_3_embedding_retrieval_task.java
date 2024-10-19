@@ -1,20 +1,19 @@
 package devoxx.rag._3_advanced_rag_ingestion;
 
+import com.datastax.astra.client.exception.TooManyDocumentsToCountException;
 import dev.langchain4j.data.embedding.Embedding;
+import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
 import dev.langchain4j.model.output.Response;
 import dev.langchain4j.model.vertexai.VertexAiEmbeddingModel;
 import dev.langchain4j.store.embedding.CosineSimilarity;
+import devoxx.rag.AbstractDevoxxTest;
+import org.junit.jupiter.api.Test;
 
-public class _33_3_embedding_retrieval_task {
-    public static void main(String[] args) {
-        var embeddingForDocs = VertexAiEmbeddingModel.builder()
-            .endpoint(System.getenv("GCP_VERTEXAI_ENDPOINT"))
-            .project(System.getenv("GCP_PROJECT_ID"))
-            .location(System.getenv("GCP_LOCATION"))
-            .modelName("text-embedding-004")
-            .publisher("google")
-            .taskType(VertexAiEmbeddingModel.TaskType.RETRIEVAL_DOCUMENT)
-            .build();
+public class _33_3_embedding_retrieval_task extends AbstractDevoxxTest {
+
+    @Test
+    public void should_compare_similarity() throws TooManyDocumentsToCountException {
+        var embeddingModel = getEmbeddingModel();
 
         var definitionText = """
             Embedding models are machine learning models that convert complex data, like text or images, 
@@ -23,20 +22,11 @@ public class _33_3_embedding_retrieval_task {
             effectively. They are used in various applications, including natural language processing, 
             image and video analysis, and recommendation systems.""";
 
-        Response<Embedding> definitionEmbedding = embeddingForDocs.embed(definitionText);
-
-        var embeddingForQuery = VertexAiEmbeddingModel.builder()
-            .endpoint(System.getenv("GCP_VERTEXAI_ENDPOINT"))
-            .project(System.getenv("GCP_PROJECT_ID"))
-            .location(System.getenv("GCP_LOCATION"))
-            .modelName("text-embedding-004")
-            .publisher("google")
-            .taskType(VertexAiEmbeddingModel.TaskType.RETRIEVAL_QUERY)
-            .build();
+        Response<Embedding> definitionEmbedding = embeddingModel.embed(definitionText);
 
         var questionText = "What are embedding models?";
 
-        Response<Embedding> questionEmbedding = embeddingForQuery.embed(questionText);
+        Response<Embedding> questionEmbedding = embeddingModel.embed(questionText);
 
         double similarity = CosineSimilarity.between(
             definitionEmbedding.content(),

@@ -16,7 +16,6 @@ import dev.langchain4j.service.AiServices;
 import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
-import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import devoxx.rag.AbstractDevoxxTest;
 import devoxx.rag.Assistant;
 import devoxx.rag.ExtendedInMemoryEmbeddingStore;
@@ -33,11 +32,9 @@ import static com.datastax.astra.internal.utils.AnsiUtils.cyan;
 import static com.datastax.astra.internal.utils.AnsiUtils.yellow;
 import static java.util.stream.Collectors.joining;
 
-public class _20_naive_rag_astra extends AbstractDevoxxTest {
+public class _20_naive_rag_inmemory extends AbstractDevoxxTest {
 
-    // file from project root
     static final File NAIVE_RAG_STORE = new File("src/test/resources/naive_rag_store.json");
-    static final String COLLECTION_NAME = "naive_rag";
 
     @Test
     public void should_ingest_document() throws TooManyDocumentsToCountException {
@@ -54,7 +51,7 @@ public class _20_naive_rag_astra extends AbstractDevoxxTest {
         System.out.println(cyan("[OK] ") + " Embedding Model '" + MODEL_EMBEDDING_TEXT + "' initialized");
 
         // In-Memory Embedding Store
-        ExtendedInMemoryEmbeddingStore<TextSegment> embeddingStore = ExtendedInMemoryEmbeddingStore.init(NAIVE_RAG_STORE);
+        ExtendedInMemoryEmbeddingStore embeddingStore = ExtendedInMemoryEmbeddingStore.init(NAIVE_RAG_STORE);
         embeddingStore.removeAll();
         System.out.println(cyan("[OK] ") + " In-Memory Embedding Store initialized");
 
@@ -77,7 +74,7 @@ public class _20_naive_rag_astra extends AbstractDevoxxTest {
         String question = "Who is Johnny?";
 
         // RAG CONTEXT
-        ExtendedInMemoryEmbeddingStore<TextSegment> embeddingStore = ExtendedInMemoryEmbeddingStore.init(NAIVE_RAG_STORE);
+        ExtendedInMemoryEmbeddingStore embeddingStore = ExtendedInMemoryEmbeddingStore.init(NAIVE_RAG_STORE);
         List<EmbeddingMatch<TextSegment>> relevantEmbeddings = embeddingStore.search(EmbeddingSearchRequest.builder()
                         .queryEmbedding(getEmbeddingModel().embed(question).content())
                         .minScore(0.5)
@@ -133,7 +130,7 @@ public class _20_naive_rag_astra extends AbstractDevoxxTest {
     @Test
     public void deleteCollection() {
         System.out.println(yellow("Delete Collection"));
-        ExtendedInMemoryEmbeddingStore<TextSegment> embeddingStore = ExtendedInMemoryEmbeddingStore.init(NAIVE_RAG_STORE);
+        ExtendedInMemoryEmbeddingStore embeddingStore = ExtendedInMemoryEmbeddingStore.init(NAIVE_RAG_STORE);
         embeddingStore.removeAll();
         embeddingStore.serializeToFile(NAIVE_RAG_STORE.toPath());
         System.out.println(cyan("[OK] ") + " Collection Deleted");

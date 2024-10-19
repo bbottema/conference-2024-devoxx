@@ -8,14 +8,20 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class ExtendedInMemoryEmbeddingStore<T> extends InMemoryEmbeddingStore<T> {
+public class ExtendedInMemoryEmbeddingStore extends InMemoryEmbeddingStore<TextSegment> {
 
-    public static ExtendedInMemoryEmbeddingStore<TextSegment> init() {
-        return new ExtendedInMemoryEmbeddingStore<>();
+    public static ExtendedInMemoryEmbeddingStore init() {
+        return new ExtendedInMemoryEmbeddingStore();
     }
 
-    public static ExtendedInMemoryEmbeddingStore<TextSegment> init(@Nullable File file) {
-        var store = new ExtendedInMemoryEmbeddingStore<TextSegment>();
+    public static ExtendedInMemoryEmbeddingStore init(ExtendedInMemoryEmbeddingStore fileStore) {
+        ExtendedInMemoryEmbeddingStore store = new ExtendedInMemoryEmbeddingStore();
+        store.getEntries().addAll(fileStore.getEntries());
+        return store;
+    }
+
+    public static ExtendedInMemoryEmbeddingStore init(@Nullable File file) {
+        var store = new ExtendedInMemoryEmbeddingStore();
         if (file != null) {
             ensureFileExists(file);
             var fileStore = InMemoryEmbeddingStore.fromFile(file.toPath());
@@ -26,20 +32,20 @@ public class ExtendedInMemoryEmbeddingStore<T> extends InMemoryEmbeddingStore<T>
         return store;
     }
 
-    private ExtendedInMemoryEmbeddingStore() {
+    public ExtendedInMemoryEmbeddingStore() {
         super();
     }
 
-    public final CopyOnWriteArrayList<T> getEntries() {
+    public final CopyOnWriteArrayList<TextSegment> getEntries() {
         return obtainEntries(this);
     }
 
-    private static <T> CopyOnWriteArrayList<T> obtainEntries(InMemoryEmbeddingStore<T> _this) {
+    private static CopyOnWriteArrayList<TextSegment> obtainEntries(InMemoryEmbeddingStore<TextSegment> _this) {
         try {
             var entriesField = InMemoryEmbeddingStore.class.getDeclaredField("entries");
             entriesField.setAccessible(true);
             //noinspection unchecked
-            return (CopyOnWriteArrayList<T>) entriesField.get(_this);
+            return (CopyOnWriteArrayList<TextSegment>) entriesField.get(_this);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException("Failed to access entries field via reflection", e);
         }

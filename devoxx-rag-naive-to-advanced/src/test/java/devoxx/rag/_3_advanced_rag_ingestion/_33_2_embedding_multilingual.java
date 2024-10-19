@@ -2,12 +2,14 @@ package devoxx.rag._3_advanced_rag_ingestion;
 
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.model.embedding.onnx.allminilml6v2q.AllMiniLmL6V2QuantizedEmbeddingModel;
+import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
 import dev.langchain4j.model.output.Response;
 import dev.langchain4j.model.vertexai.VertexAiEmbeddingModel;
 import dev.langchain4j.store.embedding.CosineSimilarity;
+import devoxx.rag.AbstractDevoxxTest;
 import org.junit.jupiter.api.Test;
 
-public class _33_2_embedding_multilingual {
+public class _33_2_embedding_multilingual extends AbstractDevoxxTest {
 
     @Test
     public void should_use_local_embedding_model() {
@@ -22,13 +24,7 @@ public class _33_2_embedding_multilingual {
 
     @Test
     public void should_use_multimodal_embedding_model() {
-        var embeddingModel = VertexAiEmbeddingModel.builder()
-            .project(System.getenv("GCP_PROJECT_ID"))
-            .endpoint(System.getenv("GCP_VERTEXAI_ENDPOINT"))
-            .location(System.getenv("GCP_LOCATION"))
-            .publisher("google")
-            .modelName("text-embedding-004")
-            .build();;
+        var embeddingModel = getEmbeddingModel();
 
         Response<Embedding> embeddingOne = embeddingModel.embed("baby dog");
         Response<Embedding> embeddingTwo = embeddingModel.embed("bébé chien");
