@@ -12,11 +12,13 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 import static com.datastax.astra.internal.utils.AnsiUtils.magenta;
 import static com.datastax.astra.internal.utils.AnsiUtils.yellow;
+import static java.util.Map.Entry.comparingByKey;
 
 public class _39_semantic_chunking extends AbstractDevoxxTest {
     @Test
@@ -32,56 +34,61 @@ public class _39_semantic_chunking extends AbstractDevoxxTest {
         // create groups of sentences (1 before, 2 after current sentence)
         List<List<String>> slidingWindowSentences = Utils.slidingWindow(sentences, 1, 2);
         List<TextSegment> concatenatedSentences = slidingWindowSentences.stream()
-            .map(strings -> TextSegment.from(String.join(" ", strings)))
-            .toList();
+                .map(strings -> TextSegment.from(String.join(" ", strings)))
+                .toList();
 
         // calculate vector embeddings for each of these sentence groups
         List<Embedding> embeddings = embeddingModel.embedAll(concatenatedSentences).content();
 
-        // calculate the pair-wise similarities between each sentence groups
-        List<Double> similarities = new ArrayList<>();
-        for (int i = 0; i < embeddings.size() - 1; i++) {
-            similarities.add(CosineSimilarity.between(embeddings.get(i), embeddings.get(i + 1)));
-        }
+        // calculate the pair-wise similarities between each sentence group in parallel
+        List<Double> similarities = IntStream.range(0, embeddings.size() - 1)
+                .parallel()
+                .mapToDouble(i -> CosineSimilarity.between(embeddings.get(i), embeddings.get(i + 1)))
+                .boxed()
+                .toList();
 
-        // find the 100 lowest similarities
-        List<Double> lowestSimilarities = similarities.stream()
-            .sorted()
-            .limit(100)
-            .toList();
+        // pair each similarity with its index
+        List<Map.Entry<Double, Integer>> similaritiesWithIndices = IntStream.range(0, similarities.size())
+                .parallel()
+                .mapToObj(i -> Map.entry(similarities.get(i), i))
+                .sorted(comparingByKey()) // Sort the similarities to find the lowest ones
+                .toList();
 
-        // find the breakpoints (indices) where the similarity is the lowest
-        int[] lowestSimilaritiesIndices = lowestSimilarities.stream()
-            .mapToInt(similarity ->
-                IntStream.range(0, similarities.size())
-                    .filter(streamIndex -> similarities.get(streamIndex).equals(similarity))
-                    .findFirst()
-                    .orElse(-1))
-            .sorted()
-            .toArray();
+        // Extract the indices of the 100 lowest similarities
+        List<Integer> lowestSimilaritiesIndices = similaritiesWithIndices.stream()
+                .limit(100)
+                .map(Map.Entry::getValue)
+                .sorted()
+                .toList();
 
-        System.out.println(magenta("Lowest similarity breakpoints = ") + Arrays.toString(lowestSimilaritiesIndices));
+        System.out.println(magenta("Lowest similarity breakpoints = ") + lowestSimilaritiesIndices);
 
         List<String> finalSentenceGroups = new ArrayList<>();
 
         int startIndex = 0;
         for (int lowestSimilaritiesIndex : lowestSimilaritiesIndices) {
-            finalSentenceGroups.add(sentences.subList(startIndex, lowestSimilaritiesIndex)
-                .stream()
-                .collect(Collectors.joining(" ")));
+            finalSentenceGroups.add(String.join(" ", sentences.subList(startIndex, lowestSimilaritiesIndex)));
             startIndex = lowestSimilaritiesIndex;
         }
-        finalSentenceGroups.add(sentences.subList(startIndex, sentences.size())
-            .stream()
-            .collect(Collectors.joining(" ")));
+        finalSentenceGroups.add(String.join(" ", sentences.subList(startIndex, sentences.size())));
 
         ScoringModel scoringModel = getScoringModel();
 
-        finalSentenceGroups.forEach(sentenceGroup -> {
-            Double score = scoringModel.score(sentenceGroup, "What is the population of Berlin?").content();
-            if (score > 0.7) {
-                System.out.format(yellow("—".repeat(10) + " Ranking score: %s " + "—".repeat(60)) + "%n %s %n", score, sentenceGroup);
-            }
-        });
+        // Process final sentence groups in parallel
+        List<String> results = finalSentenceGroups.parallelStream()
+                .map(sentenceGroup -> {
+                    Double score = scoringModel.score(sentenceGroup, "What is the population of Berlin?").content();
+                    return score > 0.7
+                            ? String.format(yellow("—".repeat(10) + " Ranking score: %s " + "—".repeat(60)) + "%n%s", score, sentenceGroup)
+                            : null;
+                })
+                .filter(Objects::nonNull)
+                .toList();
+
+        // Print the main results sequentially
+        System.out.println(magenta("\nResulting entries: " + results.size()));
+        System.out.println(magenta("\nHighest ranking:\n" + results.getFirst()));
+        System.out.println(magenta("\nLowest ranking:\n" + results.getLast()));
+
     }
 }
