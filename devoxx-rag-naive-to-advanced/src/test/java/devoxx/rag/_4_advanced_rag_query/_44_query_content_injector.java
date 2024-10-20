@@ -52,6 +52,7 @@ public class _44_query_content_injector extends AbstractDevoxxTest {
                 .contentRetriever(contentRetriever)
                 // Query injector
                 .contentInjector(DefaultContentInjector.builder()
+                        // FIXME THE FOLLOWING DOESN'T WORK, IT'S A BUG IN THE LANGCHAIN4J LIBRARY
                         // Prompt Template
                         .promptTemplate(PromptTemplate.from("The document is about %s. The MD5 hash is %s."))
                         // Values to inject
