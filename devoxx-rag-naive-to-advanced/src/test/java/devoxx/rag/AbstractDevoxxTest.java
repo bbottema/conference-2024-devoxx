@@ -16,10 +16,10 @@ import dev.langchain4j.model.chat.StreamingChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
+import dev.langchain4j.model.openai.OpenAiEmbeddingModel.OpenAiEmbeddingModelBuilder;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import dev.langchain4j.model.output.Response;
 import dev.langchain4j.model.scoring.ScoringModel;
-import dev.langchain4j.model.vertexai.VertexAiScoringModel;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.store.embedding.EmbeddingStore;
@@ -50,19 +50,24 @@ public abstract class AbstractDevoxxTest {
     protected final String MODEL_GEMINI_FLASH = "gemini-1.5-flash";
 
     // Embedding Models
-    // https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/text-embeddings-api?hl=en&authuser=2
-    protected final String MODEL_EMBEDDING_MULTILINGUAL = "text-multilingual-embedding-002";
-    protected final String MODEL_EMBEDDING_TEXT         = "text-embedding-004";
-    protected final String MODEL_OPENAI_ADA2            = "text-embedding-ada-002";
-    protected final String MODEL_OPENAI_TEXT3_SMALL     = "text-embedding-3-small";
-    protected final String MODEL_OPENAI_TEXT3_LARGE     = "text-embedding-3-large";
-    protected final int    MODEL_EMBEDDING_DIMENSION    = 768;
+    protected static final String MODEL_EMBEDDING_MULTILINGUAL = "text-multilingual-embedding-002";
+    protected static final String MODEL_EMBEDDING_TEXT         = "text-embedding-004";
+    protected static final String MODEL_OPENAI_ADA2            = "text-embedding-ada-002";
+    protected static final String MODEL_OPENAI_TEXT3_SMALL     = "text-embedding-3-small";
+    protected static final String MODEL_OPENAI_TEXT3_LARGE     = "text-embedding-3-large";
+    protected static final String MODEL_OPENAI_GPT4O           = "gpt-4o";
+    protected static final String MODEL_OPENAI_GPT35_TURBO     = "gpt-3.5-turbo";
+    protected static final int    MODEL_EMBEDDING_DIMENSION    = 768;
 
     /** Create a chat model. */
     protected ChatLanguageModel getChatLanguageModel() {
+        return getChatLanguageModel(MODEL_OPENAI_GPT4O);
+    }
+
+    protected ChatLanguageModel getChatLanguageModel(String modelName) {
         return OpenAiChatModel.builder()
                 .apiKey(System.getenv("OPENAI_API_KEY"))
-                .modelName("gpt-4o")
+                .modelName(modelName)
                 .maxRetries(5)
                 .build();
     }
@@ -76,16 +81,13 @@ public abstract class AbstractDevoxxTest {
     }
 
     /** Create an embedding model. */
-    protected EmbeddingModel getEmbeddingModel() {
+    protected static EmbeddingModel getEmbeddingModel() {
         return getEmbeddingModel(MODEL_OPENAI_ADA2);
     }
-    protected OpenAiEmbeddingModel.OpenAiEmbeddingModelBuilder getEmbeddingModelBuilder() {
-        return getEmbeddingModelBuilder(MODEL_OPENAI_ADA2);
-    }
-    protected EmbeddingModel getEmbeddingModel(String modelName) {
+    protected static EmbeddingModel getEmbeddingModel(String modelName) {
         return getEmbeddingModelBuilder(modelName).build();
     }
-    protected OpenAiEmbeddingModel.OpenAiEmbeddingModelBuilder getEmbeddingModelBuilder(String modelName) {
+    protected static OpenAiEmbeddingModelBuilder getEmbeddingModelBuilder(String modelName) {
         return OpenAiEmbeddingModel.builder()
                 .apiKey(System.getenv("OPENAI_API_KEY"))
                 .modelName(modelName) // This is the common embedding model from OpenAI
@@ -183,12 +185,7 @@ public abstract class AbstractDevoxxTest {
     }
 
     protected ScoringModel getScoringModel() {
-        return VertexAiScoringModel.builder()
-            .projectId(System.getenv("GCP_PROJECT_ID"))
-            .projectNumber(System.getenv("GCP_PROJECT_NUM"))
-            .location(System.getenv("GCP_LOCATION"))
-            .model("semantic-ranker-512")
-            .build();
+        return new BasicEmbeddingModelBasedScoringModel(getEmbeddingModel());
     }
 
     // ------------------------------------------------------------

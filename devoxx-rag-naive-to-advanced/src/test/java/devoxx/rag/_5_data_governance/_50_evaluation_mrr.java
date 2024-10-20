@@ -44,7 +44,7 @@ public class _50_evaluation_mrr extends AbstractDevoxxTest {
     }
 
     @Test
-    public void should_explain_mrr_embeddings() {
+    public static void should_explain_mrr_embeddings() {
         // We are now working with EMBEDDINGS
         EmbeddingSimilarityRelevanceChecker relevance = new EmbeddingSimilarityRelevanceChecker(
                 new CosineSimilarity(), 0.89);
@@ -68,7 +68,7 @@ public class _50_evaluation_mrr extends AbstractDevoxxTest {
         System.out.println(cyan("           Score  : ") + mmr15.eval(List.of(rankedResults)));
     }
 
-    Embedding embed(String text) {
+    static Embedding embed(String text) {
         return getEmbeddingModel().embed(text).content();
     }
 

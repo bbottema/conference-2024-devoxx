@@ -2,9 +2,7 @@ package devoxx.rag._3_advanced_rag_ingestion;
 
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.model.embedding.onnx.allminilml6v2q.AllMiniLmL6V2QuantizedEmbeddingModel;
-import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
 import dev.langchain4j.model.output.Response;
-import dev.langchain4j.model.vertexai.VertexAiEmbeddingModel;
 import dev.langchain4j.store.embedding.CosineSimilarity;
 import devoxx.rag.AbstractDevoxxTest;
 import org.junit.jupiter.api.Test;

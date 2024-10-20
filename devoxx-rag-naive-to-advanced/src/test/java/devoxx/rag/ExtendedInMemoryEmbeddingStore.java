@@ -1,14 +1,26 @@
 package devoxx.rag;
 
+import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@Slf4j
 public class ExtendedInMemoryEmbeddingStore extends InMemoryEmbeddingStore<TextSegment> {
+
+    @Value
+    public static class Document {
+        Embedding embedding;
+        TextSegment textSegment;
+    }
 
     public static ExtendedInMemoryEmbeddingStore init() {
         return new ExtendedInMemoryEmbeddingStore();
@@ -32,8 +44,14 @@ public class ExtendedInMemoryEmbeddingStore extends InMemoryEmbeddingStore<TextS
         return store;
     }
 
-    public ExtendedInMemoryEmbeddingStore() {
+    private ExtendedInMemoryEmbeddingStore() {
         super();
+    }
+
+    @Override
+    public void serializeToFile(Path filePath) {
+        log.info("persisting in-memory database to file: {}", filePath);
+        super.serializeToFile(filePath);
     }
 
     public final CopyOnWriteArrayList<TextSegment> getEntries() {
@@ -61,5 +79,9 @@ public class ExtendedInMemoryEmbeddingStore extends InMemoryEmbeddingStore<TextS
                 throw new RuntimeException("Failed to create file: " + file, e);
             }
         }
+    }
+
+    public boolean isEmpty() {
+        return getEntries().isEmpty();
     }
 }

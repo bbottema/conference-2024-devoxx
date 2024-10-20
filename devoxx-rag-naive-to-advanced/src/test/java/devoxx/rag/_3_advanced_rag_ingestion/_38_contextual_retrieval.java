@@ -61,7 +61,7 @@ public class _38_contextual_retrieval extends AbstractDevoxxTest {
             By understanding dimensionality reduction and applying the appropriate techniques, you can simplify complex datasets, improve model performance, and gain valuable insights from your data.
             """;
 
-        var gemini = getChatLanguageModel();
+        var languageModel = getChatLanguageModel();
         var embeddingModel = getEmbeddingModel();
 
         InMemoryEmbeddingStore<TextSegment> embeddingStore =
@@ -85,7 +85,7 @@ public class _38_contextual_retrieval extends AbstractDevoxxTest {
             .embeddingStore(embeddingStore)
             .embeddingModel(embeddingModel)
             .textSegmentTransformer(segment -> {
-                Response<AiMessage> generatedChunk = gemini.generate(promptTemplate.apply(Map.of(
+                Response<AiMessage> generatedChunk = languageModel.generate(promptTemplate.apply(Map.of(
                         "chunk", segment.text(),
                         "wholeDocument", text))
                     .toUserMessage());
@@ -121,7 +121,7 @@ public class _38_contextual_retrieval extends AbstractDevoxxTest {
         });
 
         // =================================
-        // Ask Gemini to generate a response
+        // Ask LLM to generate a response
 
         ChatLanguageModel chatModel = getChatLanguageModel();
 

@@ -2,9 +2,7 @@ package devoxx.rag._3_advanced_rag_ingestion;
 
 import com.datastax.astra.client.exception.TooManyDocumentsToCountException;
 import dev.langchain4j.data.embedding.Embedding;
-import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
 import dev.langchain4j.model.output.Response;
-import dev.langchain4j.model.vertexai.VertexAiEmbeddingModel;
 import devoxx.rag.AbstractDevoxxTest;
 import org.junit.jupiter.api.Test;
 

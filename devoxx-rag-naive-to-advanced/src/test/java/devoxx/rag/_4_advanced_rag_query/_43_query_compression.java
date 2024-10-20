@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static com.datastax.astra.internal.utils.AnsiUtils.cyan;
-import static devoxx.rag._3_advanced_rag_ingestion._37_hypothetical_questions_embedding.getEmbeddingStore;
+import static devoxx.rag._3_advanced_rag_ingestion._37_hypothetical_questions_embedding.getBerlinHypotheticalQuestionsEmbeddingStore;
 
 public class _43_query_compression extends AbstractDevoxxTest {
 
@@ -26,7 +26,7 @@ public class _43_query_compression extends AbstractDevoxxTest {
 //                .build();
 
         EmbeddingStoreContentRetriever retriever = EmbeddingStoreContentRetriever.builder()
-            .embeddingStore(getEmbeddingStore())
+            .embeddingStore(getBerlinHypotheticalQuestionsEmbeddingStore())
             .embeddingModel(getEmbeddingModel())
             .build();
 
