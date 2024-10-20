@@ -1,7 +1,7 @@
 package devoxx.rag._4_advanced_rag_query;
 
 import dev.langchain4j.classification.EmbeddingModelTextClassifier;
-import dev.langchain4j.model.vertexai.VertexAiEmbeddingModel;
+import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
 import dev.langchain4j.rag.RetrievalAugmentor;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
@@ -47,33 +47,21 @@ public class _41_4_query_routing_with_classifier extends AbstractDevoxxTest {
 
         @Override
         public Collection<ContentRetriever> route(Query query) {
-            VertexAiEmbeddingModel embeddingModel =
-                VertexAiEmbeddingModel.builder()
-                    .project(System.getenv("GCP_PROJECT_ID"))
-                    .location(System.getenv("GCP_LOCATION"))
-                    .endpoint(System.getenv("GCP_VERTEXAI_ENDPOINT"))
-                    .publisher("google")
-                    .modelName("text-embedding-004")
-                    .taskType(VertexAiEmbeddingModel.TaskType.CLASSIFICATION) // classification!
-                    .build();
+            EmbeddingModel embeddingModel = getEmbeddingModel();
 
             var classifier =
                 new EmbeddingModelTextClassifier<>(embeddingModel, Map.of(
-                    Category.DOG, List.of(
-                        "something about dogs", "dog, dogs, and puppies", "dog species"
-                    ),
-                    Category.HORSE, List.of(
-                        "something about horses", "horse racing", "what kind of horse is it?"
-                    )
+                    Category.DOG, List.of("something about dogs", "dog, dogs, and puppies", "dog species"),
+                    Category.HORSE, List.of("something about horses", "horse racing", "what kind of horse is it?")
                 ));
 
             List<Category> category = classifier.classify(query.text());
 
             System.out.println(yellow("-> Category recognized: " + category));
 
-            if (Category.HORSE.equals(category.get(0))) {
+            if (Category.HORSE.equals(category.getFirst())) {
                 return List.of(createRetriever("/text/johnny.txt"));
-            } else if (Category.DOG.equals(category.get(0))) {
+            } else if (Category.DOG.equals(category.getFirst())) {
                 return  List.of(createRetriever("/text/shadow.txt"));
             }
 

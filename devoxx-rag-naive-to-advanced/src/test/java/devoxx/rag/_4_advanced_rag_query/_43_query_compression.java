@@ -42,10 +42,13 @@ public class _43_query_compression extends AbstractDevoxxTest {
                 .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
                 .build();
 
+        // "its" and "there" refers to historical context (capital of Germany), which only
+        // works because of CompressingQueryTransformer, which includes the context in the
+        // query as a reformatted (compressed) question
         List.of(
             "What is the capital of Germany?",
-            "Tell me more about its geographical situation",
-            "How many people live there?"
+            "Tell me more about its geographical situation", // its
+            "How many people live there?" // there
         ).forEach(query -> {
             System.out.println("\n=== " + cyan(query) + " ===\n");
 
@@ -53,8 +56,5 @@ public class _43_query_compression extends AbstractDevoxxTest {
 
             System.out.println(answer);
         });
-
-
     }
-
 }

@@ -14,8 +14,10 @@ import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.service.AiServices;
 import devoxx.rag.AbstractDevoxxTest;
 import devoxx.rag.Assistant;
+import devoxx.rag.ExtendedInMemoryEmbeddingStore;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -24,7 +26,7 @@ import static java.util.Collections.singletonList;
 
 public class _44_query_content_injector extends AbstractDevoxxTest {
 
-    static final String COLLECTION_NAME = "quote";
+    static final File QUOTE_PREPOPULATED_STORE = new File("src/test/resources/quote_prepopulated_store.json");
 
     @Test
     void should_inject_single_content() {
@@ -39,7 +41,7 @@ public class _44_query_content_injector extends AbstractDevoxxTest {
     public void shouldRetrieveDocument() {
         // Retrieving the content from the embedding store
         ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
-                .embeddingStore(new AstraDbEmbeddingStore(getCollection(COLLECTION_NAME)))
+                .embeddingStore(ExtendedInMemoryEmbeddingStore.init(QUOTE_PREPOPULATED_STORE))
                 .embeddingModel(getEmbeddingModel())
                 .maxResults(2)
                 .minScore(0.5)
@@ -48,16 +50,12 @@ public class _44_query_content_injector extends AbstractDevoxxTest {
         // Enhance the content retriever to add meta data in the prompt
         RetrievalAugmentor retrievalAugmentor = DefaultRetrievalAugmentor.builder()
                 .contentRetriever(contentRetriever)
-
                 // Query injector
-                .contentInjector(DefaultContentInjector
-                        .builder()
-
+                .contentInjector(DefaultContentInjector.builder()
                         // Prompt Template
                         .promptTemplate(PromptTemplate.from("The document is about %s. The MD5 hash is %s."))
-
                         // Values to inject
-                        .metadataKeysToInclude(asList("document_format",  "md5"))
+                        .metadataKeysToInclude(asList("document_format", "md5"))
                         .build())
                 .build();
 

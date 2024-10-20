@@ -1,12 +1,10 @@
 package devoxx.rag._4_advanced_rag_query;
 
-import com.google.cloud.vertexai.api.Schema;
-import com.google.cloud.vertexai.api.Type;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.Response;
-import dev.langchain4j.model.vertexai.VertexAiGeminiChatModel;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
 import dev.langchain4j.rag.RetrievalAugmentor;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
@@ -47,17 +45,7 @@ public class _41_3_query_routing_with_llm extends AbstractDevoxxTest {
 
         @Override
         public Collection<ContentRetriever> route(Query query) {
-            VertexAiGeminiChatModel llmRouter = VertexAiGeminiChatModel.builder()
-                .project(System.getenv("GCP_PROJECT_ID"))
-                .location(System.getenv("GCP_LOCATION"))
-                .modelName(MODEL_GEMINI_FLASH)
-                .maxRetries(5)
-                .responseSchema(Schema.newBuilder()
-                    .setType(Type.STRING)
-                    .addEnum("dog")
-                    .addEnum("horse")
-                    .build())
-                .build();
+            ChatLanguageModel llmRouter = getChatLanguageModel(MODEL_OPENAI_GPT35_TURBO);
 
             Response<AiMessage> classificationResponse = llmRouter.generate(
                 SystemMessage.from("""

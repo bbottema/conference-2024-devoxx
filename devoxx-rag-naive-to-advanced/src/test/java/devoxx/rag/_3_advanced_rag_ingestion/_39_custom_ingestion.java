@@ -15,6 +15,9 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 import static dev.langchain4j.store.embedding.filter.MetadataFilterBuilder.metadataKey;
@@ -45,12 +48,29 @@ class _39_custom_ingestion extends AbstractDevoxxTest {
 
     @NotNull
     private static Document embedAsDocument(Quote quote, EmbeddingModel embeddingModel) {
-        Embedding embedding = embeddingModel.embed(quote.body()).content();
         TextSegment textSegment = TextSegment.from(quote.body(), new Metadata(Map.of(
                 "authors", quote.author(),
-                "tags", quote.tags().toString()
+                "tags", quote.tags().toString(),
+                "md5", computeMD5(quote.body()),
+                "document_format", "dummy_format" // used in later tests, but we don't care about it here (it's something Astra's database does)
         )));
+        Embedding embedding = embeddingModel.embed(textSegment).content();
         return new Document(embedding, textSegment);
+    }
+
+    // Utility function to compute MD5 hash
+    private static String computeMD5(String content) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] hash = md.digest(content.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                hexString.append(String.format("%02x", b));
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error generating MD5 hash", e);
+        }
     }
 
     @Test
