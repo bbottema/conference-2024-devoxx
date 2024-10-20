@@ -27,11 +27,7 @@ public class _39_custom_ingestion extends AbstractDevoxxTest {
 
     public static final File QUOTE_PREPOPULATED_STORE = new File("src/test/resources/quote_prepopulated_store.json");
 
-    public static ExtendedInMemoryEmbeddingStore getQuotePrepopulatedEmbeddingStore() {
-        return ExtendedInMemoryEmbeddingStore.init(QUOTE_PREPOPULATED_STORE);
-    }
-
-    private static final ExtendedInMemoryEmbeddingStore DATABASE = getQuotePrepopulatedEmbeddingStore();
+    private static final ExtendedInMemoryEmbeddingStore DATABASE = ExtendedInMemoryEmbeddingStore.init(QUOTE_PREPOPULATED_STORE);
 
     @Test
     void shouldIngestDocuments() throws IOException {

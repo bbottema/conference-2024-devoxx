@@ -11,22 +11,21 @@ import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.filter.comparison.IsEqualTo;
 import devoxx.rag.AbstractDevoxxTest;
+import devoxx.rag.ExtendedInMemoryEmbeddingStore;
+import devoxx.rag._3_advanced_rag_ingestion._39_custom_ingestion;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+// almost identical to _39_custom_ingestion.java#langchain4jEmbeddingStore()
 public class _45_1_vectordb_crud extends AbstractDevoxxTest {
-
-    private static final String COLLECTION_NAME = "quote_prepopulated";
 
     @Test
     public void should_search_with_metadata() {
         String question = "We struggle all our life for nothing";
         Embedding questionEmbedding = getEmbeddingModel().embed(question).content();
-        AstraDbEmbeddingStore embeddingStore = new AstraDbEmbeddingStore(new DataAPIClient(ASTRA_TOKEN,
-                DataAPIOptions.builder().withObserver(new LoggingCommandObserver(AbstractDevoxxTest.class)).build())
-                .getDatabase(ASTRA_API_ENDPOINT).getCollection(COLLECTION_NAME));
+        ExtendedInMemoryEmbeddingStore embeddingStore = ExtendedInMemoryEmbeddingStore.init(_39_custom_ingestion.QUOTE_PREPOPULATED_STORE);
 
         EmbeddingSearchRequest searchQuery = EmbeddingSearchRequest.builder()
                 .filter(new IsEqualTo("authors", "aristotle"))
@@ -40,8 +39,5 @@ public class _45_1_vectordb_crud extends AbstractDevoxxTest {
         aristotleResults.matches().forEach(match -> {
             System.out.println(AnsiUtils.cyan(BigDecimal.valueOf(match.score()).setScale(4, RoundingMode.HALF_UP).toString()) + " - " + match.embedded().text());
         });
-
     }
-
-
 }
