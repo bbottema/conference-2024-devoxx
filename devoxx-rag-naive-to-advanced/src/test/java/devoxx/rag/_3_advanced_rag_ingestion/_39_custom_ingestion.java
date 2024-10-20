@@ -23,9 +23,9 @@ import java.util.Map;
 import static dev.langchain4j.store.embedding.filter.MetadataFilterBuilder.metadataKey;
 
 @Slf4j
-class _39_custom_ingestion extends AbstractDevoxxTest {
+public class _39_custom_ingestion extends AbstractDevoxxTest {
 
-    static final File QUOTE_PREPOPULATED_STORE = new File("src/test/resources/quote_prepopulated_store.json");
+    public static final File QUOTE_PREPOPULATED_STORE = new File("src/test/resources/quote_prepopulated_store.json");
 
     public static ExtendedInMemoryEmbeddingStore getQuotePrepopulatedEmbeddingStore() {
         return ExtendedInMemoryEmbeddingStore.init(QUOTE_PREPOPULATED_STORE);

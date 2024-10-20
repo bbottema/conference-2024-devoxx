@@ -1,6 +1,5 @@
 package devoxx.rag._4_advanced_rag_query;
 
-import com.datastax.astra.langchain4j.store.embedding.AstraDbEmbeddingStore;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.input.PromptTemplate;
@@ -15,6 +14,7 @@ import dev.langchain4j.service.AiServices;
 import devoxx.rag.AbstractDevoxxTest;
 import devoxx.rag.Assistant;
 import devoxx.rag.ExtendedInMemoryEmbeddingStore;
+import devoxx.rag._3_advanced_rag_ingestion._39_custom_ingestion;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -25,8 +25,6 @@ import static java.util.Collections.singletonList;
 
 
 public class _44_query_content_injector extends AbstractDevoxxTest {
-
-    static final File QUOTE_PREPOPULATED_STORE = new File("src/test/resources/quote_prepopulated_store.json");
 
     @Test
     void should_inject_single_content() {
@@ -41,7 +39,7 @@ public class _44_query_content_injector extends AbstractDevoxxTest {
     public void shouldRetrieveDocument() {
         // Retrieving the content from the embedding store
         ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
-                .embeddingStore(ExtendedInMemoryEmbeddingStore.init(QUOTE_PREPOPULATED_STORE))
+                .embeddingStore(ExtendedInMemoryEmbeddingStore.init(_39_custom_ingestion.QUOTE_PREPOPULATED_STORE))
                 .embeddingModel(getEmbeddingModel())
                 .maxResults(2)
                 .minScore(0.5)
