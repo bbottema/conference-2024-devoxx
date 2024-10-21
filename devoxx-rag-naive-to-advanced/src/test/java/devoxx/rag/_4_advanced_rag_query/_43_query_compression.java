@@ -8,12 +8,13 @@ import dev.langchain4j.rag.query.transformer.CompressingQueryTransformer;
 import dev.langchain4j.service.AiServices;
 import devoxx.rag.AbstractDevoxxTest;
 import devoxx.rag.Assistant;
+import devoxx.rag.ExtendedInMemoryEmbeddingStore;
+import devoxx.rag._3_advanced_rag_ingestion._37_hypothetical_questions_embedding;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static com.datastax.astra.internal.utils.AnsiUtils.cyan;
-import static devoxx.rag._3_advanced_rag_ingestion._37_hypothetical_questions_embedding.getBerlinHypotheticalQuestionsEmbeddingStore;
 
 public class _43_query_compression extends AbstractDevoxxTest {
 
@@ -26,7 +27,7 @@ public class _43_query_compression extends AbstractDevoxxTest {
 //                .build();
 
         EmbeddingStoreContentRetriever retriever = EmbeddingStoreContentRetriever.builder()
-            .embeddingStore(getBerlinHypotheticalQuestionsEmbeddingStore())
+            .embeddingStore(ExtendedInMemoryEmbeddingStore.init(_37_hypothetical_questions_embedding.BERLIN_HYPOTHETICAL_QUESTIONS_STORE))
             .embeddingModel(getEmbeddingModel())
             .build();
 

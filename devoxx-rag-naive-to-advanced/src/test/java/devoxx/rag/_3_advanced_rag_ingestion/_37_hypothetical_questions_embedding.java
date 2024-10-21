@@ -33,13 +33,9 @@ public class _37_hypothetical_questions_embedding extends AbstractDevoxxTest {
 
     private static final Gson gson = new Gson();
     private static final String PARAGRAPH_KEY = "paragraph";
-    static final File BERLIN_HYPOTHETICAL_QUESTIONS_STORE = new File("src/test/resources/berlin_hypothetical_questions_store.json");
+    public static final File BERLIN_HYPOTHETICAL_QUESTIONS_STORE = new File("src/test/resources/berlin_hypothetical_questions_store.json");
 
-    public static ExtendedInMemoryEmbeddingStore getBerlinHypotheticalQuestionsEmbeddingStore() {
-        return ExtendedInMemoryEmbeddingStore.init(BERLIN_HYPOTHETICAL_QUESTIONS_STORE);
-    }
-
-    private static final ExtendedInMemoryEmbeddingStore DATABASE = getBerlinHypotheticalQuestionsEmbeddingStore();
+    private static final ExtendedInMemoryEmbeddingStore DATABASE = ExtendedInMemoryEmbeddingStore.init(BERLIN_HYPOTHETICAL_QUESTIONS_STORE);
 
     @Order(2)
 //    @Test
@@ -105,7 +101,7 @@ public class _37_hypothetical_questions_embedding extends AbstractDevoxxTest {
                     .toList();
 
             var embeddingModel = getEmbeddingModel();
-            var embeddingStore = getBerlinHypotheticalQuestionsEmbeddingStore();
+            var embeddingStore = ExtendedInMemoryEmbeddingStore.init(BERLIN_HYPOTHETICAL_QUESTIONS_STORE);
 
             List<Embedding> embeddings = embeddingModel.embedAll(embeddedSegments).content();
             embeddingStore.addAll(embeddings, embeddedSegments);
@@ -125,7 +121,7 @@ public class _37_hypothetical_questions_embedding extends AbstractDevoxxTest {
         System.out.println(magenta("\nUSER QUESTION: ") + queryString);
 
         var embeddingModel = getEmbeddingModel();
-        var embeddingStore = getBerlinHypotheticalQuestionsEmbeddingStore();
+        var embeddingStore = ExtendedInMemoryEmbeddingStore.init(BERLIN_HYPOTHETICAL_QUESTIONS_STORE);
 
         EmbeddingSearchResult<TextSegment> searchResults = embeddingStore.search(EmbeddingSearchRequest.builder()
                 .maxResults(4)

@@ -6,10 +6,11 @@ import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.Result;
 import dev.langchain4j.service.SystemMessage;
 import devoxx.rag.AbstractDevoxxTest;
+import devoxx.rag.ExtendedInMemoryEmbeddingStore;
+import devoxx.rag._3_advanced_rag_ingestion._37_hypothetical_questions_embedding;
 import org.junit.jupiter.api.Test;
 
 import static com.datastax.astra.internal.utils.AnsiUtils.*;
-import static devoxx.rag._3_advanced_rag_ingestion._37_hypothetical_questions_embedding.getBerlinHypotheticalQuestionsEmbeddingStore;
 
 public class _49_agentic_RAG extends AbstractDevoxxTest {
 
@@ -62,7 +63,7 @@ public class _49_agentic_RAG extends AbstractDevoxxTest {
             TopicAssistant topicAssistant = AiServices.builder(TopicAssistant.class)
                 .chatLanguageModel(getChatLanguageModel())
                 .contentRetriever(EmbeddingStoreContentRetriever.builder()
-                    .embeddingStore(getBerlinHypotheticalQuestionsEmbeddingStore())
+                    .embeddingStore(ExtendedInMemoryEmbeddingStore.init(_37_hypothetical_questions_embedding.BERLIN_HYPOTHETICAL_QUESTIONS_STORE))
                     .embeddingModel(getEmbeddingModel())
                     .build())
                 .build();

@@ -61,8 +61,7 @@ public class _47_hypothetical_document_embeddings extends AbstractDevoxxTest {
 
         DocumentByParagraphSplitter splitter = new DocumentByParagraphSplitter(1000, 0);
 
-        InMemoryEmbeddingStore<TextSegment> embeddingStore =
-            new InMemoryEmbeddingStore<>();
+        InMemoryEmbeddingStore<TextSegment> embeddingStore = new InMemoryEmbeddingStore<>();
 
         EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
             .documentSplitter(splitter)

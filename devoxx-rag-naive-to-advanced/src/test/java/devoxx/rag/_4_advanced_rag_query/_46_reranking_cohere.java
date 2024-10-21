@@ -10,6 +10,7 @@ import dev.langchain4j.rag.content.aggregator.ReRankingContentAggregator;
 import dev.langchain4j.service.AiServices;
 import devoxx.rag.AbstractDevoxxTest;
 import devoxx.rag.Assistant;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Test;
  * ReRanking
  * https://dashboard.cohere.com/welcome/register
  */
+@Disabled("This test requires a COHERE_API_KEY")
 public class _46_reranking_cohere extends AbstractDevoxxTest {
 
     @Test

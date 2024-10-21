@@ -4,7 +4,6 @@ import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
-import dev.langchain4j.model.vertexai.VertexAiGeminiChatModel;
 import dev.langchain4j.service.AiServices;
 import devoxx.rag.AbstractDevoxxTest;
 import org.junit.jupiter.api.Test;
@@ -32,21 +31,14 @@ public class _48_2_sample_function_calling_weather extends AbstractDevoxxTest {
 
     @Test
     public void testWeatherFunctionCall() {
-        ChatLanguageModel model = VertexAiGeminiChatModel.builder()
-            .project(System.getenv("GCP_PROJECT_ID"))
-            .location(System.getenv("GCP_LOCATION"))
-            .modelName(MODEL_GEMINI_FLASH)
-            .build();
-
-        WeatherForecastService weatherForecastService = new WeatherForecastService();
+        ChatLanguageModel model = getChatLanguageModel(MODEL_OPENAI_GPT35_TURBO);
 
         WeatherAssistant assistant = AiServices.builder(WeatherAssistant.class)
             .chatLanguageModel(model)
             .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
-            .tools(weatherForecastService)
+            .tools(new WeatherForecastService())
             .build();
 
-        System.out.println(assistant.weatherForecastQuery(
-            "Is it warmer in Antwerp or in Paris?"));
+        System.out.println(assistant.weatherForecastQuery("Is it warmer in Antwerp or in Paris?"));
     }
 }

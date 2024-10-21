@@ -15,14 +15,13 @@ import devoxx.rag.AbstractDevoxxTest;
 import devoxx.rag.Assistant;
 import devoxx.rag.ExtendedInMemoryEmbeddingStore;
 import devoxx.rag._3_advanced_rag_ingestion._39_custom_ingestion;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-
 
 public class _44_query_content_injector extends AbstractDevoxxTest {
 
@@ -35,6 +34,7 @@ public class _44_query_content_injector extends AbstractDevoxxTest {
         System.out.println(injected.text());
     }
 
+    @Disabled("This example is invalid, see GitHub issue https://github.com/langchain4j/langchain4j/issues/1964")
     @Test
     public void shouldRetrieveDocument() {
         // Retrieving the content from the embedding store
@@ -50,7 +50,6 @@ public class _44_query_content_injector extends AbstractDevoxxTest {
                 .contentRetriever(contentRetriever)
                 // Query injector
                 .contentInjector(DefaultContentInjector.builder()
-                        // FIXME THE FOLLOWING DOESN'T WORK, IT'S A BUG IN THE LANGCHAIN4J LIBRARY
                         // Prompt Template
                         .promptTemplate(PromptTemplate.from("The document is about %s. The MD5 hash is %s."))
                         // Values to inject

@@ -4,11 +4,8 @@ import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.splitter.DocumentByParagraphSplitter;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
-import dev.langchain4j.model.scoring.ScoringModel;
-import dev.langchain4j.model.vertexai.VertexAiScoringModel;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
 import dev.langchain4j.rag.RetrievalAugmentor;
-import dev.langchain4j.rag.content.aggregator.ContentAggregator;
 import dev.langchain4j.rag.content.aggregator.ReRankingContentAggregator;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.service.AiServices;
@@ -19,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import static com.datastax.astra.internal.utils.AnsiUtils.cyan;
 
-public class _46_reranking_vertex extends AbstractDevoxxTest {
+public class _46_reranking_llm extends AbstractDevoxxTest {
 
     @Test
     public void shouldRerankResult() {
@@ -66,8 +63,7 @@ public class _46_reranking_vertex extends AbstractDevoxxTest {
 
         DocumentByParagraphSplitter splitter = new DocumentByParagraphSplitter(1000, 0);
 
-        InMemoryEmbeddingStore<TextSegment> embeddingStore =
-            new InMemoryEmbeddingStore<>();
+        InMemoryEmbeddingStore<TextSegment> embeddingStore = new InMemoryEmbeddingStore<>();
 
         EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
             .documentSplitter(splitter)
@@ -82,28 +78,18 @@ public class _46_reranking_vertex extends AbstractDevoxxTest {
         System.out.println(cyan("Retrieving..."));
 
         // Re Ranking
-        ScoringModel scoringModel = VertexAiScoringModel.builder()
-            .projectId(System.getenv("GCP_PROJECT_ID"))
-            .projectNumber(System.getenv("GCP_PROJECT_NUM"))
-            .location(System.getenv("GCP_LOCATION"))
-            .model("semantic-ranker-512")
-            .build();
-
-        ContentAggregator contentAggregator = ReRankingContentAggregator.builder()
-                .scoringModel(scoringModel)
-                .minScore(0.8)
-                .build();
-
-        EmbeddingStoreContentRetriever retriever = EmbeddingStoreContentRetriever.builder()
-            .embeddingStore(embeddingStore)
-            .embeddingModel(embeddingModel)
-            .maxResults(10)
-            .minScore(0.7)
-            .build();
 
         RetrievalAugmentor retrievalAugmentor = DefaultRetrievalAugmentor.builder()
-                .contentRetriever(retriever)
-                .contentAggregator(contentAggregator)
+                .contentRetriever(EmbeddingStoreContentRetriever.builder()
+                    .embeddingStore(embeddingStore)
+                    .embeddingModel(embeddingModel)
+                    .maxResults(10)
+                    .minScore(0.7)
+                    .build())
+                .contentAggregator(ReRankingContentAggregator.builder()
+                        .scoringModel(getScoringModel())
+                        .minScore(0.8)
+                        .build())
                 .build();
 
         interface Assistant {

@@ -1,32 +1,13 @@
 package devoxx.rag._4_advanced_rag_query;
 
-import com.datastax.astra.client.Collection;
-import com.datastax.astra.client.model.Document;
-import com.datastax.astra.client.model.FindOptions;
-import com.datastax.astra.client.model.Projections;
-import com.datastax.astra.client.model.SimilarityMetric;
-import dev.langchain4j.data.embedding.Embedding;
-import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.embedding.onnx.allminilml6v2q.AllMiniLmL6V2QuantizedEmbeddingModel;
-import dev.langchain4j.model.output.Response;
 import devoxx.rag.AbstractDevoxxTest;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-
-import static com.datastax.astra.internal.utils.AnsiUtils.cyan;
-import static com.datastax.astra.internal.utils.AnsiUtils.yellow;
-
+@Disabled("This test depends on the SimilarityMetric and makes this test AstraDb-centric")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class _45_2_vectordb_similarity extends AbstractDevoxxTest {
-// THIS TEST DEPENDS ON THE SimilarityMetric AND MAKES THIS TEST AstraDb-centric
 //    static Collection<Document> dotProduct;
 //    static Collection<Document> euclidean;
 //    static Collection<Document> cosine;

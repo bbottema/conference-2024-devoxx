@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static java.util.Collections.singletonList;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class _48_sample_function_calling extends AbstractDevoxxTest {
@@ -60,10 +61,9 @@ public class _48_sample_function_calling extends AbstractDevoxxTest {
         assertThat(aiMessage.hasToolExecutionRequests()).isTrue();
         assertThat(aiMessage.toolExecutionRequests()).hasSize(1);
 
-        ToolExecutionRequest toolExecutionRequest = aiMessage.toolExecutionRequests().get(0);
+        ToolExecutionRequest toolExecutionRequest = aiMessage.toolExecutionRequests().getFirst();
         assertThat(toolExecutionRequest.name()).isEqualTo("add");
-        assertThat(toolExecutionRequest.arguments())
-            .isEqualToIgnoringWhitespace("{\"arg1\":926.0,\"arg0\":754.0}");
-    }
 
+        assertThatJson(toolExecutionRequest.arguments()).isEqualTo("{\"arg1\":926,\"arg0\":754}");
+    }
 }
