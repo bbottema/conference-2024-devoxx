@@ -151,7 +151,7 @@ public abstract class AbstractDevoxxTest {
                 .embeddingStore(store).build().ingest(document);
     }
 
-    protected ContentRetriever createRetriever(String fileName) {
+    protected ContentRetriever  createRetriever(String fileName) {
         URL fileURL = getClass().getResource(fileName);
         Path path = new File(fileURL.getFile()).toPath();
         dev.langchain4j.data.document.Document document = FileSystemDocumentLoader

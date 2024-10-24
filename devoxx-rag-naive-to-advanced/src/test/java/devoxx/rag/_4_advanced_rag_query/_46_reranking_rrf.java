@@ -9,6 +9,7 @@ import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.filter.comparison.IsEqualTo;
 import devoxx.rag.AbstractDevoxxTest;
 import devoxx.rag.ExtendedInMemoryEmbeddingStore;
+import devoxx.rag._3_advanced_rag_ingestion._39_custom_ingestion;
 import devoxx.rag.rerank.rrf.ReciprocalRankFusion;
 import org.junit.jupiter.api.Test;
 
@@ -18,12 +19,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static devoxx.rag._3_advanced_rag_ingestion._39_custom_ingestion.QUOTE_PREPOPULATED_STORE;
-
-// TODO: investigate the purpose and the result of this test with ChatGPT
 public class _46_reranking_rrf extends AbstractDevoxxTest  {
 
-    private static final ExtendedInMemoryEmbeddingStore DATABASE = ExtendedInMemoryEmbeddingStore.init(QUOTE_PREPOPULATED_STORE);
+    private static final ExtendedInMemoryEmbeddingStore DATABASE = ExtendedInMemoryEmbeddingStore.init(_39_custom_ingestion.QUOTE_PREPOPULATED_STORE);
 
     @Test
     public void testRerankingRRF() {

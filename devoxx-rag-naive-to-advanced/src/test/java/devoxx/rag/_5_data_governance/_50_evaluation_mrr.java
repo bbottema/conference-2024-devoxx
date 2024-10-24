@@ -6,12 +6,15 @@ import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import devoxx.rag.AbstractDevoxxTest;
+import devoxx.rag.ExtendedInMemoryEmbeddingStore;
+import devoxx.rag._3_advanced_rag_ingestion._37_hypothetical_questions_embedding;
 import devoxx.rag.evaluation.RankedResults;
 import devoxx.rag.evaluation.mrr.MeanReciprocalRank;
 import devoxx.rag.evaluation.relevance.EmbeddingSimilarityRelevanceChecker;
 import devoxx.rag.similarity.CosineSimilarity;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -23,8 +26,7 @@ public class _50_evaluation_mrr extends AbstractDevoxxTest {
     @Test
     public void should_explain_mrr() {
           // We are working with STRING
-          MeanReciprocalRank<String> mmr15 = new MeanReciprocalRank<>();
-          // Question
+        // Question
           RankedResults<String> rankedResults = new RankedResults<>("What is the capital of France?");
           // Target responses (expressed as Strings)
           rankedResults.addExpectedAnswers("Paris is the capital of France.");
@@ -36,15 +38,15 @@ public class _50_evaluation_mrr extends AbstractDevoxxTest {
           rankedResults.addResult(0.6, "France is a country in Europe.");
           // Default RELEVANCE FUNCTION IS EXACT MATCHING.
           // As one of the results is an exact match, the MRR will be 1.0 for this rank.
-          double mrr = new MeanReciprocalRank<String>().eval(List.of(rankedResults));
-          System.out.println(yellow("===== MRR@15 ===== "));
+        MeanReciprocalRank<String> mrr = new MeanReciprocalRank<>();
+        System.out.println(yellow("===== MRR@15 ===== "));
           System.out.println(cyan("     Used Objects : ") + "String");
-          System.out.println(cyan("Relevance Checker : ") + mmr15.getRelevanceChecker().getClass().getSimpleName());
-          System.out.println(cyan("           Score  : ") + mrr);
+        System.out.println(cyan("Relevance Checker : ") + mrr.getRelevanceChecker().getClass().getSimpleName());
+          System.out.println(cyan("           Score  : ") + mrr.eval(List.of(rankedResults)));
     }
 
     @Test
-    public static void should_explain_mrr_embeddings() {
+    public void should_explain_mrr_embeddings() {
         // We are now working with EMBEDDINGS
         EmbeddingSimilarityRelevanceChecker relevance = new EmbeddingSimilarityRelevanceChecker(
                 new CosineSimilarity(), 0.89);
@@ -79,9 +81,7 @@ public class _50_evaluation_mrr extends AbstractDevoxxTest {
         String question = "What is the population of Berlin?";
 
         // We are working with STRING
-        EmbeddingSimilarityRelevanceChecker relevance = new EmbeddingSimilarityRelevanceChecker(
-                new CosineSimilarity(), 0.75);
-        MeanReciprocalRank<Embedding> mmr15 = new MeanReciprocalRank<>(relevance, 15);
+        EmbeddingSimilarityRelevanceChecker relevance = new EmbeddingSimilarityRelevanceChecker(new CosineSimilarity(), 0.75);
 
         // Question
         RankedResults<Embedding> rankedResults = new RankedResults<>(question);
@@ -90,7 +90,9 @@ public class _50_evaluation_mrr extends AbstractDevoxxTest {
         rankedResults.addExpectedAnswers(embed("The population of Berlin is 3.85 millions"));
 
         // RAG
-        var embeddingStore = new AstraDbEmbeddingStore(createCollection("berlin", 768));
+
+        var embeddingStore = ExtendedInMemoryEmbeddingStore
+                .init(_37_hypothetical_questions_embedding.BERLIN_HYPOTHETICAL_QUESTIONS_STORE);
         List<EmbeddingMatch<TextSegment>> relevantEmbeddings = embeddingStore.search(EmbeddingSearchRequest.builder()
                         .queryEmbedding(embed(question))
                         .minScore(0.1)
@@ -101,22 +103,21 @@ public class _50_evaluation_mrr extends AbstractDevoxxTest {
                 rankedResults.addResult(embeddingMatch.score(), embeddingMatch.embedding()));
 
         // Compute MRR
-        double mrr = mmr15.eval(rankedResults);
+        MeanReciprocalRank<Embedding> mmr15 = new MeanReciprocalRank<>(relevance, 15);
+
         System.out.println(yellow("===== MRR@15 (rag) ===== "));
         System.out.println(cyan("     Used Objects : ") + "Embedding");
         System.out.println(cyan("Relevance Checker : ") + mmr15.getRelevanceChecker().getClass().getSimpleName());
-        System.out.println(cyan("           Score  : ") + mrr);
+        System.out.println(cyan("           Score  : ") + mmr15.eval(rankedResults));
 
         // Remove previous results
         rankedResults.getMatches().clear();
 
         // Re-Ranking
-        TreeMap<Double, TextSegment> rankedSegments = new TreeMap<>();
-        relevantEmbeddings.stream()
-                .forEach(match -> {
-                    Double score = getScoringModel().score(match.embedded().text(), question).content();
-                    rankedResults.addResult(score, match.embedding());
-                });
+        relevantEmbeddings.forEach(match -> {
+            Double score = getScoringModel().score(match.embedded().text(), question).content();
+            rankedResults.addResult(score, match.embedding());
+        });
         System.out.println(yellow("\n===== MRR@15 (rag + re-rank) ===== "));
         System.out.println(cyan("     Used Objects : ") + "Embedding");
         System.out.println(cyan("Relevance Checker : ") + mmr15.getRelevanceChecker().getClass().getSimpleName());
